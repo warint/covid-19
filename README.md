@@ -14,7 +14,7 @@ This initiative is not an official initiative from SKEMA, it is just a **pilot p
 
 At the end of the period, a committee will decide on the 3 best contributions to this initiative. Three teams will be rewarded with an honorific prize, which will be announced on June 15, 2020.
 
-Once the overall initiative is organized around a website / dashboard accessible to the public, we will consider potential outputs such as this one [https://fr.unesco.org/events/hackaton-codethecurve](https://fr.unesco.org/events/hackaton-codethecurve){target="_blank"}
+Once the overall initiative is organized around a website / dashboard accessible to the public, we will consider potential outputs such as this one [https://fr.unesco.org/events/hackaton-codethecurve](https://fr.unesco.org/events/hackaton-codethecurve).
 
 ## Description
 
@@ -24,17 +24,17 @@ Starting on April 7th and finishing late May, our Lab team will assemble the dif
 
 To participate, students need to form teams of 3 people. In order to cover the whole range from web apps development to statistics and machine learning, we will R. Coding knowledge in R is thus advisable. Now, team members can have different level. Teams will have access to online peer learning sessions on our communication platform and on our virtual campus. They will be able to train themselves on the fundamentals of R.
 
-Teams must designate a team leader and fill up this form [here](https://docs.google.com/forms/d/e/1FAIpQLSdomp_8h3o1gvGGdRJVFpvsKzXJsnpOK7Pjo65VJprHaCOQDg/viewform?usp=sf_link){target="_blank"}
+Teams must designate a team leader and fill up this form [here](https://docs.google.com/forms/d/e/1FAIpQLSdomp_8h3o1gvGGdRJVFpvsKzXJsnpOK7Pjo65VJprHaCOQDg/viewform?usp=sf_link).
 
 ## Objectives
 
 We are starting to see a lot of online initiatives about Covid-19, and notably about data visualizations. Even if they are numerous, they tend to be very close to each other. And although visualizations are important for our own dashboard, we can augment them with some data science perspectives, for instance in terms of sentiment analysis, or predictive modelling.
 
-An exemple of great visualizations is [https://ourworldindata.org/coronavirus-data](https://ourworldindata.org/coronavirus-data){target="_blank"}.
+An exemple of great visualizations is [https://ourworldindata.org/coronavirus-data](https://ourworldindata.org/coronavirus-data).
 
 Our main objective is to provide a scientific perspective to the world conversation and to open up our contribution so that other people can leverage it.
 
-By providing a scientific perspective, we mean to propose contributions that can be validated by others, and shedding a slightly different light to the pandemic. A Github repo has been created to host the code and serves also as a data warehouse, which can be found [here](https://github.com/warint){target="_blank"}.
+By providing a scientific perspective, we mean to propose contributions that can be validated by others, and shedding a slightly different light to the pandemic. A Github repo has been created to host the code and serves also as a data warehouse, which can be found [here](https://github.com/warint).
 
 
 ## Mission
@@ -43,13 +43,13 @@ This **Hacking Health Covid-19** initiative just wants to be a positive use of o
 
 ## Tools
 
-You will find some of the tools we will use here: [www.quantumstudio.skemagloballab.io](https://quantumstudio.skemagloballab.io){target="_blank"}:
+You will find some of the tools we will use here: [www.quantumstudio.skemagloballab.io](https://quantumstudio.skemagloballab.io):
 
-- first, our main portal: [www.skemagloballab.io](https://www.skemagloballab.io){target="_blank}
+- first, our main portal: [www.skemagloballab.io](https://www.skemagloballab.io)
 - The **Open Knowlege Base**: an open source version of Slack, we will communicate **exclusively** through this platform. Our whole team will be here for you. You need to create your account. Any person with a skema.edu email address can create an account.
 - The **Virtual Campus**: a set of reference courses that you will use during your *peer learning sessions*.
 - **Quantum Studio Core**: the computing platform. We will provide you with your credentials by email before class. It will be useful for your R-based initiative.
-- Our [cloud.skemagloballab.io](https://cloud.skemagloballab.io){target="_blank"}: you will have access to an open source version of Dropbox where you will put your working documents.
+- Our [cloud.skemagloballab.io](https://cloud.skemagloballab.io): you will have access to an open source version of Dropbox where you will put your working documents.
 - A **Github** folder to coodinate your work with your teammates. We will provide you with our git address.
 
 
