@@ -177,6 +177,7 @@ afinn_word_LatLong_Tot_PN <- filter(afinn_word_LatLong_Tot, sentiment != "neutra
 #plot
 #afinn_word_LatLong_Tot %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
 ##
+##
 
 
 ## SHAPEFILE MAP DISTRICT UK
