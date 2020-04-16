@@ -1,6 +1,6 @@
 # Hacking Health Covid-19
 
-https://covid.skemagloballab.io
+www.covid.skemagloballab.io
 
 ## Context
 
