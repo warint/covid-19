@@ -114,7 +114,7 @@ district_data <- left_join(population, income, by = c("lad17nm", "year"))
 #save_as_csv(covid19_testUK2_latLong, "covidTweetData2.csv")
 
 ## LOADING TWEETS
-tweets.overall <- read_csv("covidTweetData2.csv")
+tweets.overall <- read_csv("team4/covidTweetData2.csv") #Delete and replace by line 111 and 112 when we will be connect to Twitter API with the token
 
 ## KEEPING TWEETS OF UK
 tweets.overall.LatLong <- filter(tweets.overall, lat >= 49.771686 & lat <= 60.862568)
@@ -139,7 +139,7 @@ text <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", text)
 # remove at people
 text <- gsub("@\\w+", "", text)
 # remove punctuation
-# text <- gsub("[[:punct:]]", "", text)
+text <- gsub("[[:punct:]]", "", text)
 # remove numbers
 text <- gsub("[[:digit:]]", "", text)
 # remove html links
@@ -173,10 +173,14 @@ afinn_word_LatLong_Tot$sentiment <- ifelse(afinn_word_LatLong_Tot$value > 0, "po
 
 afinn_word_LatLong_Tot_PN <- filter(afinn_word_LatLong_Tot, sentiment != "neutral")
 
+#plot
+#afinn_word_LatLong_Tot %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
+
+
 
 ## SHAPEFILE MAP DISTRICT UK
 
-district <- readOGR(dsn = "./shapefiles/ladUK", 
+district <- readOGR(dsn = "team4/shapefiles/shapefiles/ladUK", 
                     layer = 'Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84')
 
 district@data$lad17nm <- gsub(", City of", "", district@data$lad17nm)
@@ -186,7 +190,7 @@ district@data$lad17nm <- gsub("'", "", district@data$lad17nm)
 district@data$lad17nm<- gsub("St ", "St. ", district@data$lad17nm)
 
 district@data$lad17nm <- toTitleCase(district@data$lad17nm)
-map <- read_sf("./shapefiles/ladUK/Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84.shp")
+map <- read_sf("team4/shapefiles/shapefiles/ladUK/Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84.shp")
 
 map$lad17nm <- gsub(", City of", "", map$lad17nm)
 map$lad17nm <- gsub(", County of", "", map$lad17nm)
@@ -248,29 +252,29 @@ leaflet() %>%
   setView(-0.118092, 51.509865, 4) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addFullscreenControl() %>%
-  addPolygons(data = district,
-              fillColor = ~pal(district@data$income_tot_mean),
-              weight = 2,
-              opacity = 1,
-              color = "white",
-              dashArray = "2",
-              fillOpacity = 0.7,
-              highlight = highlightOptions(
-                weight = 3,
-                color = "#666",
-                dashArray = "",
-                fillOpacity = 0.7,
-                bringToFront = FALSE),
-              label = labels,
-              labelOptions = labelOptions(
-                style = list("font-weight" = "normal", padding = "3px 8px"),
-                textsize = "15px",
-                direction = "auto")) %>% 
-  addLegend(pal = pal, 
-            values = district@data$income_tot_mean, 
-            opacity = 0.7, 
-            title = "Average Total Income",
-            position = "bottomright") %>%
+   #addPolygons( data = district),
+  #              fillColor = ~pal(district@data$income_tot_mean),
+  #             weight = 2,
+  #          opacity = 1,
+  #             color = "white",
+  #             dashArray = "2",
+  #             fillOpacity = 0.7,
+  #             highlight = highlightOptions(
+  #               weight = 3,
+  #               color = "#666",
+  #               dashArray = "",
+  #               fillOpacity = 0.7,
+  #               bringToFront = FALSE),
+  #             label = labels,
+  #             labelOptions = labelOptions(
+  #               style = list("font-weight" = "normal", padding = "3px 8px"),
+  #               textsize = "15px",
+  #               direction = "auto")) %>% 
+  # addLegend(pal = pal, 
+  #           values = district@data$income_tot_mean, 
+  #           opacity = 0.7, 
+  #           title = "Average Total Income",
+  #           position = "bottomright") %>% 
   addCircleMarkers(data = afinn_word_LatLong_Tot_PN, lng = ~longitude, lat = ~latitude,
                    radius = 1,
                    color = ~palTweets(sentiment),
