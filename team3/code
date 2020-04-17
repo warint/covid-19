@@ -25,7 +25,9 @@ library("wordcloud")
 library("ggplot2")
 library("dplyr")
 library("tidyr")
-library("tidytext")
+library(tidytext)
+library(tidyverse)
+library(tokenizers)
 
 tweets<-read.csv2(file = "trumptweets.csv", header=T, sep=",")
 View(tweets)
@@ -54,12 +56,17 @@ tweets_text <- gsub("^ ", "", tweets_text)
 # Remove blank spaces at the end
 tweets_text <- gsub(" $", "", tweets_text)
 
+#tokenizing each word
+text_df <- tibble(line = 1:length(tweets_text), text = tweets_text)
+tidy_tweets <- text_df %>% 
+  unnest_tokens(word, text)
 
-#Remove stop words
-tweets_text <- tweets_text%>%anti_join(stop_words)
 
-#
-head(tweets_text)
+#Remove stop words and other useless words
+custom_words_removing <- bind_rows(tibble(word = c("trump", "donald"), lexicon = c("custom")),stop_words)
+tweets_text <- tidy_tweets%>%anti_join(custom_words_removing)
+
+tweets_text<-tweets_text$word
 
 #beautiful wordcloud
 wordcloud(tweets_text,min.freq = 10,colors=brewer.pal(8, "Dark2"),random.color = TRUE,max.words = 100)
