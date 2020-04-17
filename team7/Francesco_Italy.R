@@ -1,8 +1,4 @@
 install.packages("covid19italy")
-
-# install.packages("devtools")
-devtools::install_github("covid19italy/covid19Italy")
-
 library(covid19italy)
 library(dplyr)
 library(ggplot2)
@@ -14,6 +10,20 @@ library(PerformanceAnalytics)
 library(Hmisc)
 library(FactoMineR)
 library(factoextra)
+library(tidyverse)
+library(datarium)
+library(githubinstall)
+library(devtools)
+library(usethis)
+library(ISLR)
+library(MASS)
+library(visreg)
+library(rgl)
+library(knitr)
+library(scatterplot3d)
+library(lubridate)
+library(easynls)
+
 
 update_data()
 
@@ -62,43 +72,6 @@ plot_ly(data = italy_total,
          yaxis = list(title = "Number of Cases"),
          xaxis = list(title = "Source: Italy Department of Civil Protection"))
 
-italy_region %>%
-  filter(date == max(date)) %>%
-  select(region_name, cumulative_cases, recovered, death, cumulative_positive_cases) %>%
-  arrange(-cumulative_positive_cases) %>%
-  mutate(region = factor(region_name, levels = region_name)) %>%
-  plot_ly(y = ~ region,
-          x = ~ cumulative_cases,
-          orientation = 'h',
-          text =  ~ cumulative_cases,
-          textposition = 'auto',
-          type = "bar",
-          name = "Active",
-          marker = list(color = "#1f77b4")) %>%
-  add_trace(x = ~ recovered,
-            text =  ~ recovered,
-            textposition = 'auto',
-            name = "Recovered",
-            marker = list(color = "forestgreen")) %>%
-  add_trace(x = ~ death,
-            text =  ~ death,
-            textposition = 'auto',
-            name = "Death",
-            marker = list(color = "red")) %>%
-  layout(title = "Cases Distribution by Region",
-         barmode = 'stack',
-         yaxis = list(title = "Region"),
-         xaxis = list(title = "Number of Cases"),
-         hovermode = "compare",
-         legend = list(x = 0.65, y = 0.9),
-         margin =  list(
-           l = 20,
-           r = 10,
-           b = 10,
-           t = 30,
-           pad = 2
-         ))
-
 italy_province %>%
   filter(date == max(date), region_name == "Lombardia") %>%
   plot_ly(labels = ~province_name, values = ~total_cases,
@@ -106,9 +79,10 @@ italy_province %>%
           type = 'pie') %>%
   layout(title = "Lombardia - Cases Distribution by Province") %>%
   hide_legend()
+
 ######################################################################
 # By me
-
+# I Define 2 new datasets to understand and see the differences on a day to day basis
 italy_total2 <- italy_total %>%
   arrange(date) %>%
   mutate(diff_hospitalized_with_symptoms = hospitalized_with_symptoms - lag(hospitalized_with_symptoms, default = first(hospitalized_with_symptoms))) %>%
@@ -141,9 +115,10 @@ italy_region2 <- italy_region %>%
 
 italy_region2[6:15] <- NULL
 
-
+# plot to understand the differences in testing but quite useless
 ggplot(data = italy_total2, aes(x = date)) + geom_line(aes(y = diff_total_test, color = "darkred")) + geom_point(aes(y = diff_daily_positive_cases, color="steelblue"))
 
+# distribution of variation on a log scale of various key factors
 plot_ly(data = italy_total2,
         x = ~ date,
         y = ~ log(diff_total_test),
@@ -162,11 +137,12 @@ plot_ly(data = italy_total2,
          yaxis = list(title = "Number of Cases per day on a log scale"),
          xaxis = list(title = "Source: Italy Department of Civil Protection"))
 
+# same one as before but with ggplot
 ggplot(data = italy_total2, aes(x = date)) + geom_line(aes(y = log(diff_total_test),color = "darkred")) + geom_line(aes(y = log(diff_cumulative_positive_cases), color = "steelblue"))
 
 
+# i try to see if there is any sort of correlation with my data
 cor(italy_total2$diff_test, italy_total2$diff_daily_positive_cases)
-
 my_data <- italy_total2[, c(2:11)]
 my_data.cor = cor(my_data)
 my_data.rcorr = rcorr(as.matrix(my_data))
@@ -174,20 +150,6 @@ my_data.rcorr
 corrplot(my_data.cor, method = "number")
 
 # multiple regression analysis
-
-library(tidyverse)
-library(datarium)
-library(githubinstall)
-library(devtools)
-library(usethis)
-library(ISLR)
-library(MASS)
-library(visreg)
-library(rgl)
-library(knitr)
-library(scatterplot3d)
-
-
 
 dhws <- as.vector(italy_total2$diff_hospitalized_with_symptoms)
 dic <- as.vector(italy_total2$diff_intensive_care)
@@ -216,29 +178,59 @@ plot(fit2, pch = 20, cex = 0.7, col = "blue", which = 1)
 
 
 # time series analysis
+# i try to change the date into a day to day format starting from the first date
+x <- italy_total2$date
+date <- ymd(x)
+days <- yday(date) - 54
+italy_total2 %>%
+  mutate(days = yday(ymd(italy_total2$date)) - 54)
 
-library(growthmodels)
 ################################### ### GOMPERTZ
-# alpha = 9526 beta = 9.1618 k = 0.0028
-nls.gompertz <- minpack.lm::nlsLM(data$cases ˜ alpha*exp(-beta*exp(-k*data$days)), data = data, start = list(alpha = alpha, beta = beta, k = k), control = list(maxiter = 500))
-coef(nls.gompertz) ## alpha = 9437, beta = 59.24, k = 0.0219
-## Now fit Geompertz model
-growth.gompertz <- growthmodels::gompertz(data$days, alpha = coef(nls.gompertz)[["alpha"]], beta = coef(nls.gompertz)[["beta"]], k = coef(nls.gompertz)[["k"]])
-growth.gompertz
-## Predict
-predict.gompertz <-growthmodels::gompertz(days.predict, alpha = coef(nls.gompertz)[["alpha"]], beta = coef(nls.gompertz)[["beta"]], k = coef(nls.gompertz)[["k"]])
-predict.gompertz
-## the values for 18/4, 18/5, 18/6, and 18/7 predict.gompertz[c(84:87)]
+
+# i create a third dataset as the result of mixing the 1st and 2nd version
+italy_total3 <- italy_total %>%
+  arrange(date) %>%
+  mutate(diff_hospitalized_with_symptoms = hospitalized_with_symptoms - lag(hospitalized_with_symptoms, default = first(hospitalized_with_symptoms))) %>%
+  mutate(diff_intensive_care = intensive_care - lag(intensive_care, default = first(intensive_care))) %>%
+  mutate(diff_total_hospitalized = total_hospitalized - lag(total_hospitalized, default = first(total_hospitalized))) %>%
+  mutate(diff_home_confinement = home_confinement - lag(home_confinement, default = first(home_confinement))) %>%
+  mutate(diff_cumulative_positive_cases = cumulative_positive_cases - lag(cumulative_positive_cases, default = first(cumulative_positive_cases))) %>%
+  mutate(diff_daily_positive_cases = daily_positive_cases - lag(daily_positive_cases, default = first(daily_positive_cases))) %>%
+  mutate(diff_recovered = recovered - lag(recovered, default = first(recovered))) %>%
+  mutate(diff_death = death - lag(death, default = first(death))) %>%
+  mutate(diff_cumulative_cases = cumulative_cases - lag(cumulative_cases, default = first(cumulative_cases))) %>%
+  mutate(diff_total_test = total_tests - lag(total_tests, default = first(total_tests))) %>%
+  mutate(days = yday(ymd(italy_total3$date)) - 54)
+
+#simple plot analysis
+plot(italy_total3$days, italy_total3$cumulative_cases)
+plot(italy_total3$days, italy_total3$death)
+plot(italy_total3$days, italy_total3$diff_cumulative_cases)
+plot(italy_total3$days, italy_total3$diff_death)
+
+# reference: https://www.youtube.com/watch?v=0ifT-7K68sk
 
 
+# First Model
+days_death = as.data.frame(cbind(italy_total3$days, italy_total3$diff_death))
+plot(days_death)
+model1 = nlsfit(days_death, model = 10, start = c(a = 600, b = 2, c = 0.1))
+model1
+nlsplot(days_death, model = 10, start = c(a = 600, b = 2, c = 0.1), 
+        xlab = "Days" , ylab = "Diff_Death" , position = 1)
 
+# Second Model
+days_cumulative_cases = as.data.frame(cbind(italy_total3$days, italy_total3$diff_cumulative_cases))
+plot(days_cumulative_cases)
+model2 = nlsfit(days_cumulative_cases, model = 10, start = c(a = 4000, b = 2, c = 0.2))
+model2
+nlsplot(days_cumulative_cases, model = 10, start = c(a = 4000, b = 2, c = 0.2), 
+        xlab = "Days" , ylab = "Diff_Cumulative_cases" , position = 1)
 
-
-
-
-
-
-
-
-
-
+# Third Model can't run because is not suitable for Gompertz
+days_intensive_care = as.data.frame(cbind(italy_total3$days, italy_total3$diff_intensive_care))
+plot(days_intensive_care)
+model3 = nlsfit(days_intensive_care, model = 10, start = c(a = 200, b = 0, c = 0.1))
+model3
+nlsplot(days_intensive_care, model = 10, start = c(a = 200, b = 0, c = 0.1), 
+        xlab = "Days" , ylab = "Diff_Intensive_Care" , position = 1)
