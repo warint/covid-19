@@ -94,7 +94,7 @@ district_data <- left_join(population, income, by = c("lad17nm", "year"))
 
 # store api keys (these are fake example values; replace with your own keys)
 #api_key <- "2d0zkQNRVfuYUSnZewrR5rv5J"
-#api_secret_key <- "fAuHUBMXMMRGOgXuGYQHe65KILaF5B2ivSjKpykck9rMsMJdUs"
+#api<_secret_key <- "fAuHUBMXMMRGOgXuGYQHe65KILaF5B2ivSjKpykck9rMsMJdUs"
 #access_token <- "1250086760857702400-Cdpb5Lb3jUnHREhCtKVAevYouphqUA"
 #access_token_secret <- "qiIOW0aDddW1LFX5dQRxJbmQ5wuCqQaHEHjKMlqwWaRP6"
 
@@ -114,7 +114,7 @@ district_data <- left_join(population, income, by = c("lad17nm", "year"))
 #save_as_csv(covid19_testUK2_latLong, "covidTweetData2.csv")
 
 ## LOADING TWEETS
-tweets.overall <- read_csv("team4/covidTweetData2.csv") #Delete and replace by line 111 and 112 when we will be connect to Twitter API with the token
+tweets.overall <- read_csv("covidTweetData2.csv")
 
 ## KEEPING TWEETS OF UK
 tweets.overall.LatLong <- filter(tweets.overall, lat >= 49.771686 & lat <= 60.862568)
@@ -166,22 +166,27 @@ AFINN <- get_sentiments("afinn")
 afinn_word_LatLong <- tidy_tweets_LatLong %>%
   inner_join(AFINN, by = "word")
 
-afinn_word_LatLong_Tot <- aggregate(value ~ line + year + latitude + longitude, afinn_word_LatLong, sum)
+afinn_word_LatLong_Tot <- aggregate(value ~ line + word + year + latitude + longitude, afinn_word_LatLong, sum)
 
 afinn_word_LatLong_Tot$sentiment <- ifelse(afinn_word_LatLong_Tot$value > 0, "positive", 
                                            ifelse(afinn_word_LatLong_Tot$value == 0, "neutral", "negative"))
 
 afinn_word_LatLong_Tot_PN <- filter(afinn_word_LatLong_Tot, sentiment != "neutral")
 
-#plot
-#afinn_word_LatLong_Tot %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
-##
-##
+
+qplot(factor(sentiment), data=afinn_word_LatLong_Tot_PN, geom="bar", fill=factor(sentiment))+xlab("Sentiment Categories") + ylab("Frequency") + ggtitle("Sentiments Analysis - Covid19")
+qplot(factor(value), data=afinn_word_LatLong_Tot_PN, geom="bar", fill=factor(value))+xlab("Sentiment Score") + ylab("Frequency") + ggtitle("Sentiments Analysis Scores - Covid19")
+
+afinn_word_LatLong_Tot %>% count(word, sort = TRUE) %>% top_n(10) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #covid19 tweets")
+
+# sentiment analysis (bing)
+afinn_covid = afinn_word_LatLong_Tot %>% inner_join(get_sentiments("bing")) %>% count(word, sentiment, sort = TRUE) %>% ungroup()
 
 
+afinn_covid %>% group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
 ## SHAPEFILE MAP DISTRICT UK
 
-district <- readOGR(dsn = "team4/shapefiles/shapefiles/ladUK", 
+district <- readOGR(dsn = "./shapefiles/ladUK", 
                     layer = 'Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84')
 
 district@data$lad17nm <- gsub(", City of", "", district@data$lad17nm)
@@ -191,7 +196,7 @@ district@data$lad17nm <- gsub("'", "", district@data$lad17nm)
 district@data$lad17nm<- gsub("St ", "St. ", district@data$lad17nm)
 
 district@data$lad17nm <- toTitleCase(district@data$lad17nm)
-map <- read_sf("team4/shapefiles/shapefiles/ladUK/Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84.shp")
+map <- read_sf("./shapefiles/ladUK/Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84.shp")
 
 map$lad17nm <- gsub(", City of", "", map$lad17nm)
 map$lad17nm <- gsub(", County of", "", map$lad17nm)
@@ -247,16 +252,54 @@ labels <- sprintf(
   district@data$lad17nm, district@data$income_tot_mean
 ) %>% lapply(htmltools::HTML)
 
-palTweets <- colorFactor(c("limegreen", "red"), domain = c("positive", "negative"))
+palTweets <- colorFactor(c("red", "limegreen"), domain = c("positive", "negative"))
 
-leaflet() %>%
+biggestSentiment <- afinn_word_LatLong_Tot
+j = 1
+#biggestSentiment = subset(biggestSentiment, ! (biggestSentiment$line % 2) == 0)
+countTmp = (count(afinn_word_LatLong_Tot_PN)$n - 1)
+for( i in 1:countTmp)
+{
+  if(biggestSentiment$longitude[i] == biggestSentiment$longitude[i+1])
+  {
+    j = j+1
+  }
+}
+k = 0
+for( i in 1:j)
+{
+    print(i)
+    if(biggestSentiment$longitude[i-k] == biggestSentiment$longitude[i+1-k])
+    {
+        if(abs(biggestSentiment$value[i-k]) > abs(biggestSentiment$value[i+1-k]))
+        {
+            biggestSentiment <- biggestSentiment[-(i+1-k),]
+            print("Here")
+        }
+        else
+        {
+            biggestSentiment <- biggestSentiment[-(i-k),]
+        }
+      k = k +1
+    }
+    else
+    {
+      print("Banna")
+    }
+}
+
+
+
+
+leaflet(data = biggestSentiment) %>%
   setView(-0.118092, 51.509865, 4) %>%
   addProviderTiles(providers$CartoDB.Positron) %>%
   addFullscreenControl() %>%
-   #addPolygons( data = district),
-  #              fillColor = ~pal(district@data$income_tot_mean),
+  # addPolygons(data = district) %>% 
+  # data = district,
+  #             fillColor = ~pal(district@data$income_tot_mean),
   #             weight = 2,
-  #          opacity = 1,
+  #             opacity = 1,
   #             color = "white",
   #             dashArray = "2",
   #             fillOpacity = 0.7,
@@ -275,10 +318,12 @@ leaflet() %>%
   #           values = district@data$income_tot_mean, 
   #           opacity = 0.7, 
   #           title = "Average Total Income",
-  #           position = "bottomright") %>% 
-  addCircleMarkers(data = afinn_word_LatLong_Tot_PN, lng = ~longitude, lat = ~latitude,
-                   radius = 1,
-                   color = ~palTweets(sentiment),
-                   stroke = FALSE, 
-                   fillOpacity = 1
+  #           position = "bottomright") %>%
+  addLabelOnlyMarkers(lng = ~longitude, lat = ~latitude, label =biggestSentiment$word, labelOptions = labelOptions(noHide = T, direction = 'top', textOnly = T)) %>%
+   addCircleMarkers(lng = ~longitude, lat = ~latitude,
+                    radius = abs(afinn_word_LatLong_Tot_PN$value)*2,
+                    color = ~palTweets(sentiment),
+                    stroke = FALSE, 
+                    fillOpacity = 1
   )
+  
