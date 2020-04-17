@@ -93,28 +93,30 @@ population$lad17nm <- toTitleCase(population$lad17nm)
 district_data <- left_join(population, income, by = c("lad17nm", "year"))
 
 # store api keys (these are fake example values; replace with your own keys)
-#api_key <- "2d0zkQNRVfuYUSnZewrR5rv5J"
-#api<_secret_key <- "fAuHUBMXMMRGOgXuGYQHe65KILaF5B2ivSjKpykck9rMsMJdUs"
-#access_token <- "1250086760857702400-Cdpb5Lb3jUnHREhCtKVAevYouphqUA"
-#access_token_secret <- "qiIOW0aDddW1LFX5dQRxJbmQ5wuCqQaHEHjKMlqwWaRP6"
-
-# authenticate via web browser
-#token <- create_token(
-#  app = "Covid19AnalysisWord",
-#  consumer_key = api_key,
-#  consumer_secret = api_secret_key,
-#  access_token = access_token,
-#  access_secret = access_token_secret)
-
-
-#since 
-#covid19_testUK2 <- search_tweets("#covid19", n=1000,  include_rts = FALSE, retryonratelimit = TRUE)
-#covid19_testUK2_latLong <- lat_lng(covid19_testUK2)
-
-#save_as_csv(covid19_testUK2_latLong, "covidTweetData2.csv")
+# api_key <- "2d0zkQNRVfuYUSnZewrR5rv5J"
+# api_secret_key <- "fAuHUBMXMMRGOgXuGYQHe65KILaF5B2ivSjKpykck9rMsMJdUs"
+# access_token <- "1250086760857702400-Cdpb5Lb3jUnHREhCtKVAevYouphqUA"
+# access_token_secret <- "qiIOW0aDddW1LFX5dQRxJbmQ5wuCqQaHEHjKMlqwWaRP6"
+# 
+# # authenticate via web browser
+# token <- create_token(
+#   app = "Covid19AnalysisWord",
+#   consumer_key = api_key,
+#   consumer_secret = api_secret_key,
+#   access_token = access_token,
+#   access_secret = access_token_secret)
+# 
+# 
+# #since 
+# covid19_testUK2 <- search_tweets("#covid19", n=1000,  include_rts = FALSE, retryonratelimit = TRUE)
+# covid19_testUK2_latLong <- lat_lng(covid19_testUK2)
+# 
+# save_as_csv(covid19_testUK2_latLong, "covidTweetData3.csv")
 
 ## LOADING TWEETS
-tweets.overall <- read_csv("covidTweetData2.csv")
+tweets.overall2 <- read_csv("team4/covidTweetData2.csv")
+tweets.overall3 <- read_csv("team4/covidTweetData3.csv")
+tweets.overall <- rbind(tweets.overall2, tweets.overall3)
 
 ## KEEPING TWEETS OF UK
 tweets.overall.LatLong <- filter(tweets.overall, lat >= 49.771686 & lat <= 60.862568)
@@ -125,9 +127,11 @@ tweets.overall.LatLong <- filter(tweets.overall.LatLong, lng >= -12.524414 & lng
 tweets <- tweets.overall.LatLong
 
 tweets.overall.LatLong$year <- substr(tweets.overall.LatLong$created_at, 0, 4)
+tweets.overall.LatLong$month_day <- substr(tweets.overall.LatLong$created_at, 6, 10)
 
 tweets.LatLong <- tibble(line = 1:nrow(tweets.overall.LatLong), 
-                         year = tweets.overall.LatLong$year, 
+                         year = tweets.overall.LatLong$year,
+                         month_day = tweets.overall.LatLong$month_day,
                          latitude = tweets.overall.LatLong$lat, 
                          longitude = tweets.overall.LatLong$lng)
 
@@ -166,7 +170,7 @@ AFINN <- get_sentiments("afinn")
 afinn_word_LatLong <- tidy_tweets_LatLong %>%
   inner_join(AFINN, by = "word")
 
-afinn_word_LatLong_Tot <- aggregate(value ~ line + word + year + latitude + longitude, afinn_word_LatLong, sum)
+afinn_word_LatLong_Tot <- aggregate(value ~ line + word + year + month_day + latitude + longitude, afinn_word_LatLong, sum)
 
 afinn_word_LatLong_Tot$sentiment <- ifelse(afinn_word_LatLong_Tot$value > 0, "positive", 
                                            ifelse(afinn_word_LatLong_Tot$value == 0, "neutral", "negative"))
@@ -177,16 +181,22 @@ afinn_word_LatLong_Tot_PN <- filter(afinn_word_LatLong_Tot, sentiment != "neutra
 qplot(factor(sentiment), data=afinn_word_LatLong_Tot_PN, geom="bar", fill=factor(sentiment))+xlab("Sentiment Categories") + ylab("Frequency") + ggtitle("Sentiments Analysis - Covid19")
 qplot(factor(value), data=afinn_word_LatLong_Tot_PN, geom="bar", fill=factor(value))+xlab("Sentiment Score") + ylab("Frequency") + ggtitle("Sentiments Analysis Scores - Covid19")
 
+#Plot word most used
 afinn_word_LatLong_Tot %>% count(word, sort = TRUE) %>% top_n(10) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #covid19 tweets")
 
-# sentiment analysis (bing)
-afinn_covid = afinn_word_LatLong_Tot %>% inner_join(get_sentiments("bing")) %>% count(word, sentiment, sort = TRUE) %>% ungroup()
+# sentiment analysis (afinn)
+afinn_covid = afinn_word_LatLong_Tot %>% inner_join(get_sentiments("afinn")) %>% count(word, sentiment, month_day, sort = TRUE) %>% ungroup()
 
-
+#PLOT sentiment analysis
 afinn_covid %>% group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
-## SHAPEFILE MAP DISTRICT UK
 
-district <- readOGR(dsn = "./shapefiles/ladUK", 
+#PLot sentiment analysis per day
+afinn_covid %>% filter(month_day == "04-16") %>% group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets from 16/04 containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
+afinn_covid %>% filter(month_day == "04-17") %>% group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets from 17/04 containing #covid19", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
+
+
+## SHAPEFILE MAP DISTRICT UK
+district <- readOGR(dsn = "team4/shapefiles/shapefiles/ladUK", 
                     layer = 'Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84')
 
 district@data$lad17nm <- gsub(", City of", "", district@data$lad17nm)
@@ -196,7 +206,7 @@ district@data$lad17nm <- gsub("'", "", district@data$lad17nm)
 district@data$lad17nm<- gsub("St ", "St. ", district@data$lad17nm)
 
 district@data$lad17nm <- toTitleCase(district@data$lad17nm)
-map <- read_sf("./shapefiles/ladUK/Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84.shp")
+map <- read_sf("team4/shapefiles/shapefiles/ladUK/Local_Authority_Districts_December_2017_Full_Clipped_Boundaries_in_United_Kingdom_WGS84.shp")
 
 map$lad17nm <- gsub(", City of", "", map$lad17nm)
 map$lad17nm <- gsub(", County of", "", map$lad17nm)
@@ -240,8 +250,8 @@ tweets_sentiment_income_pop_latlong_final <- select(tweets_sentiment_income_pop_
 names(tweets_sentiment_income_pop_latlong_final)[names(tweets_sentiment_income_pop_latlong_final) == "objectid"] <- "lad17id"
 
 write.csv(tweets_sentiment_income_pop_latlong_final, "tweets_sentiment_income_pop_latlong_final.csv")
-## MAP DISTRICT UK
 
+## MAP DISTRICT UK
 district@data <- left_join(district@data, district_data, by = "lad17nm")
 
 bins <- c(20000, 30000, 40000, 50000, 60000, 70000, 100000, 150000, 200000)
@@ -256,7 +266,7 @@ palTweets <- colorFactor(c("red", "limegreen"), domain = c("positive", "negative
 
 biggestSentiment <- afinn_word_LatLong_Tot
 j = 1
-#biggestSentiment = subset(biggestSentiment, ! (biggestSentiment$line % 2) == 0)
+
 countTmp = (count(afinn_word_LatLong_Tot_PN)$n - 1)
 for( i in 1:countTmp)
 {
@@ -268,13 +278,11 @@ for( i in 1:countTmp)
 k = 0
 for( i in 1:j)
 {
-    print(i)
     if(biggestSentiment$longitude[i-k] == biggestSentiment$longitude[i+1-k])
     {
         if(abs(biggestSentiment$value[i-k]) > abs(biggestSentiment$value[i+1-k]))
         {
             biggestSentiment <- biggestSentiment[-(i+1-k),]
-            print("Here")
         }
         else
         {
@@ -282,13 +290,7 @@ for( i in 1:j)
         }
       k = k +1
     }
-    else
-    {
-      print("Banna")
-    }
 }
-
-
 
 
 leaflet(data = biggestSentiment) %>%
