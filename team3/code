@@ -1,3 +1,5 @@
+#code from:https://hackernoon.com/text-processing-and-sentiment-analysis-of-twitter-data-22ff5e51e14c
+
 install.packages("twitteR")
 install.packages("ROAuth")
 install.packages("NLP")
