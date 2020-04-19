@@ -1,0 +1,205 @@
+---
+title: "Region Distribution of Covid 19 Cases Italy"
+output: flexdashboard::flex_dashboard
+---
+    
+    
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(covid19italy)
+update_data()
+library(ggplot2)
+```
+
+Column 
+-------------------------------------
+    
+### Lombardia
+    
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Lombardia") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Lombardia - Cases Distribution by Province") 
+```
+
+Column {.tabset}
+-------------------------------------
+   
+### Emilia-Romagna
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Emilia-Romagna") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Emilia-Romagna - Cases Distribution by Province") 
+```   
+ 
+### Piemonte
+    
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Piemonte") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Piemonte - Cases Distribution by Province") 
+```
+
+### Abruzzo
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Abruzzo") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Abruzzo - Cases Distribution by Province") 
+```
+
+### Basilicata
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Basilicata") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Basilicata - Cases Distribution by Province") 
+```
+
+### Calabria
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Calabria") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Calabria - Cases Distribution by Province") 
+```
+
+### Campania
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Campania") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Campania - Cases Distribution by Province") 
+```
+
+### Friuli Venezia Giulia
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Friuli Venezia Giulia") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Friuli Venezia Giulia - Cases Distribution by Province") 
+```
+
+### Lazio
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Lazio") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Lazio - Cases Distribution by Province") 
+```
+
+### Liguria
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Liguria") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Liguria - Cases Distribution by Province") 
+```
+
+### Marche
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Marche") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Marche - Cases Distribution by Province") 
+```
+
+### Molise
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Molise") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Molise - Cases Distribution by Province") 
+```
+
+### Puglia
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Puglia") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Puglia - Cases Distribution by Province") 
+```
+
+### Sardegna
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Sardegna") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Sardegna - Cases Distribution by Province") 
+```
+
+### Sicilia
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Sicilia") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Sicilia - Cases Distribution by Province") 
+```
+
+### Toscana
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Toscana") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Toscana - Cases Distribution by Province") 
+```
+
+### Umbria
+
+```{r}
+italy_province %>%
+  filter(date == max(date), region_name == "Umbria") %>%
+  plot_ly(labels = ~province_name, values = ~total_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Umbria - Cases Distribution by Province") 
+```
+

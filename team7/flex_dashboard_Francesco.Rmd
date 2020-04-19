@@ -1,0 +1,106 @@
+---
+title: "Covid 19 daily "
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    social: menu
+    output: html_document
+---
+
+```{r setup, include=FALSE}
+library(flexdashboard)
+library(plotly)
+library(covid19italy)
+update_data()
+library(ggplot2)
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+plot_ly(data = italy_total,
+        x = ~ date,
+        y = ~home_confinement,
+        name = 'Home Confinement',
+        fillcolor = '#FDBBBC',
+        type = 'scatter',
+        mode = 'none',
+        stackgroup = 'one') %>%
+  add_trace( y = ~ hospitalized_with_symptoms,
+             name = "Hospitalized with Symptoms",
+             fillcolor = '#E41317') %>%
+  add_trace(y = ~intensive_care,
+            name = 'Intensive Care',
+            fillcolor = '#9E0003') %>%
+  layout(title = "Italy - Distribution of Active Covid19 Cases",
+         legend = list(x = 0.1, y = 0.9),
+         yaxis = list(title = "Number of Cases"),
+         xaxis = list(title = "Source: Italy Department of Civil Protection"))
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+plot_ly(data = italy_total,
+        x = ~ date,
+        y = ~ cumulative_cases,
+        name = 'Active',
+        fillcolor = '#1f77b4',
+        type = 'scatter',
+        mode = 'none',
+        stackgroup = 'one') %>%
+  add_trace( y = ~ death,
+             name = "Death",
+             fillcolor = '#E41317') %>%
+  add_trace(y = ~recovered,
+            name = 'Recovered',
+            fillcolor = 'forestgreen') %>%
+  layout(title = "Italy - Distribution of Covid19 Cases",
+         legend = list(x = 0.1, y = 0.9),
+         yaxis = list(title = "Number of Cases"),
+         xaxis = list(title = "Source: Italy Department of Civil Protection"))
+```
+
+### Chart C
+
+```{r}
+italy_region %>%
+  filter(date == max(date)) %>%
+  plot_ly(labels = ~region_name, values = ~ cumulative_cases,
+          textinfo="label+percent",
+          type = 'pie') %>%
+  layout(title = "Italy - Cases Distribution by Region") 
+```
+
+\newpage
+
+Row
+-----------------------------------------------------------------------
+
+### Total Deaths
+
+```{r}
+  valueBox(max(italy_total$death), 
+           icon = "fa-skull")
+```
+
+### Cumulative Cases
+
+```{r}
+  valueBox(max(italy_total$cumulative_cases), 
+           icon = "fa-virus-slash")
+```
+
+### Total Tests
+
+```{r}
+  valueBox(max(italy_total$total_tests), 
+           icon = "fa-briefcase-medical")
+```
+
