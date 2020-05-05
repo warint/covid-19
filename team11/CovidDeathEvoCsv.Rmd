@@ -1,0 +1,65 @@
+---
+title: "Fichier CSV évolution"
+author: "Valentin Henriot"
+date: "04/05/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+1er tableau pour Florian : évolution de la mortalité par pays / dates
+
+```{r}
+Xtest <- coronavirus %>% group_by(Country.Region, type) %>% filter(type == "death")
+Xtest[Xtest == "" ] <- NA  # argument coronavirus lié à HackatonCoronavirus.Rmd
+
+Xtest$name <- ifelse(is.na(Xtest$Province.State) == TRUE, 
+                                paste0(Xtest$Country.Region), paste0(Xtest$Province.State))
+
+Xtest$Province.State <- NULL
+#Xtest$Lat <- NULL
+#Xtest$Long <- NULL
+Xtest$type <- NULL
+
+Xtest$date <- as.Date(Xtest$date)
+Xtest$cases <- as.numeric(Xtest$cases)
+
+Xtest2 <- Xtest %>%
+pivot_wider(names_from = date, values_from = cases)
+```
+
+```{r}
+write.csv2(Xtest2, file = "CovidR.csv") # tableau pour Florian (dates en colonnes)
+```
+
+2eme tableau pour Valentin : prise en compte du nombre d'infectés, soignés, décédés. 
+
+```{r}
+CovidTableau <- coronavirus %>% group_by(Country.Region, type)
+CovidTableau[CovidTableau == "" ] <- NA
+
+CovidTableau$name <- ifelse(is.na(CovidTableau$Province.State) == TRUE, 
+                                paste0(CovidTableau$Country.Region), paste0(CovidTableau$Province.State))
+
+CovidTableau$Province.State <- NULL
+
+CovidTableau$date <- as.Date(CovidTableau$date)
+```
+
+```{r}
+write.csv2(CovidTableau, file = "CovidTableau.csv") # tableau pour Valentin (analyse sur logiciel Tableau)
+```
+
+3eme tableau Valentin pour analyse complémentaire
+
+```{r}
+CovidTableau2 <- CovidTableau %>%
+pivot_wider(names_from = type, values_from = cases)
+```
+
+```{r}
+write.csv2(CovidTableau2, file = "CovidTableau2.csv") # tableau 2 pour Valentin (analyse sur logiciel Tableau)
+```
+

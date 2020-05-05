@@ -1,0 +1,44 @@
+---
+title: "GraphCovid"
+author: "Florian Colin"
+date: "11/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r include=FALSE}
+library(readr)
+library(dplyr)
+library(tidyr)
+library(ggplot2)
+library(plotly)
+```
+
+
+```{r include=FALSE}
+Impactbyindustry <- read_csv("Impactbyindustry.csv")
+```
+
+```{r include=FALSE}
+Impactbyindustry1 <- ggplot(Impactbyindustry) +
+ aes(x = Industries, fill = Industries, weight = `Traffic evolution`) +
+ geom_bar() +
+ scale_fill_viridis_d(option = "plasma") +
+ labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") +
+ ggthemes::theme_fivethirtyeight()
+Impactbyindustry1
+```
+
+```{r echo=FALSE}
+Impactbyindustry1 + theme(legend.title = element_text(size = 0, 
+    face = "bold")) + theme(plot.subtitle = element_text(size = 12, 
+    face = "bold"), axis.text.x = element_text(size = 0), 
+    plot.title = element_text(size = 15), 
+    legend.text = element_text(size = 10)) +labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", 
+    subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
+```
+
+

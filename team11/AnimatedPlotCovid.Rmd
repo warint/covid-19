@@ -1,0 +1,94 @@
+---
+title: "Animated Bar Charts Covid"
+author: "Valentin Henriot"
+date: "14/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Inutile de rajouter le code avant, ce document sera transféré sur HackatonCoronavirus.rmd
+
+```{r}
+summary_df2
+
+summary_df2$Province.State[summary_df2$Province.State == "" ] <- NA
+
+summary_df2$name <- ifelse(is.na(summary_df2$Province.State) == TRUE, 
+                                paste0(summary_df2$Country.Region), paste0(summary_df2$Province.State))
+```
+
+```{r}
+PlotCumsumConfirmed <- summary_df2 %>% group_by(name) %>% mutate(CumulConfirmes=cumsum(confirmed))
+
+PlotCumsumConfirmed$CumulConfirmes <- as.numeric(PlotCumsumConfirmed$CumulConfirmes)
+
+PlotCumsumDeath <- summary_df2 %>% group_by(name) %>% 
+mutate(CumulMorts=cumsum(death))
+
+PlotCumsumDeath$CumulMorts <- as.numeric(PlotCumsumDeath$CumulMorts)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(lubridate)
+
+Plot_formatted <- PlotCumsumConfirmed %>%
+  mutate(date = ymd(date)) %>%
+  group_by(date) %>%
+  mutate(rank = rank(-CumulConfirmes),
+         Value_rel = CumulConfirmes/CumulConfirmes[rank==1],
+         Value_lbl = paste0(" ",round(CumulConfirmes))) %>%
+  group_by(name) %>% 
+  filter(rank <=10) %>%
+  ungroup()
+```
+
+```{r}
+StaticPlotCovid = ggplot(Plot_formatted, aes(rank, group = name, 
+                fill = as.factor(name), color = as.factor(name))) +
+  geom_tile(aes(y = CumulConfirmes/2,
+                height = CumulConfirmes,
+                width = 0.9), alpha = 0.8, color = NA) +
+  geom_text(aes(y = 0, label = paste(name, " ")), vjust = 0.2, hjust = 1) +
+  geom_text(aes(y=CumulConfirmes, label = Value_lbl, hjust=0)) +
+  coord_flip(clip = "off", expand = FALSE) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_reverse() +
+  guides(color = FALSE, fill = FALSE) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+         axis.title.y=element_blank(),
+        legend.position="none",
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        panel.grid.major.x = element_line( size=.1, color="grey" ),
+        panel.grid.minor.x = element_line( size=.1, color="grey" ),
+        plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+        plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
+        plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+        plot.background=element_blank(),
+       plot.margin = margin(2,2, 2, 4, "cm"))
+```
+
+```{r}
+library(gganimate)
+
+anim = StaticPlotCovid + transition_states(date, transition_length = 4, state_length = 1) +
+  view_follow(fixed_x = TRUE)  +
+  labs(title = 'Évolution du nombre de cas de Covid 19 par pays : {closest_state}',  
+       subtitle  =  "10 premiers pays / régions",
+       caption  = "Nombre de cas confirmés | Data Source: Rami Krispin/coronavirus")
+```
+
+```{r}
+animate(anim, 1000, fps = 15,  width = 1200, height = 1000, 
+        renderer = gifski_renderer("gganimcovid.gif"))
+```
+

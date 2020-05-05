@@ -1,0 +1,31 @@
+---
+title: "Twitter Analysis France"
+author: "Valentin Henriot"
+date: "26/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(rtweet)
+```
+
+```{r}
+get_token()
+```
+
+```{r}
+covidTwitter <- search_tweets("#confinement", n=1000, include_rts = FALSE, retryonratelimit = TRUE)
+```
+
+```{r}
+covidTwitter
+```
+
+```{r}
+users_data(covidTwitter)
+```
+

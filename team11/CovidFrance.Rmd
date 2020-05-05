@@ -1,0 +1,23 @@
+---
+title: "Covid-19 France"
+author: "Valentin Henriot"
+date: "24/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(readr)
+library(ggplot2)
+library(dplyr)
+library(tidyr)
+```
+
+```{r}
+CovidFrance <- read.csv("https://www.data.gouv.fr/fr/datasets/r/eceb9fb4-3ebc-4da3-828d-f5939712600a")
+```
+
+Voir si utilité de traiter ces données

@@ -1,0 +1,267 @@
+---
+title: "World Map Covid-19"
+author: "Valentin Henriot"
+date: "09/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Document RMD pour générer la carte du monde avec l'évolution jour par jour avec les différents cas (décés, rétablis, confirmés).
+Essayer de faire une carte avec une timeline (leaftime).
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr) 
+library(tidyr)
+library(leaflet)
+library(leaflet.extras)
+library(leaftime)
+library(purrr)
+library(leafpop)
+```
+
+```{r}
+CoronavirusWorld <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
+
+CoronavirusWorld[CoronavirusWorld == "" ] <- NA
+```
+
+```{r}
+CoronavirusWorld$name <- ifelse(is.na(CoronavirusWorld$Province.State) == TRUE, 
+                                paste0(CoronavirusWorld$Country.Region), paste0(CoronavirusWorld$Province.State))
+```
+
+```{r}
+CoronavirusWorld$date <- as.Date(CoronavirusWorld$date)
+```
+
+```{r}
+CoronavirusWorld2 <- spread(CoronavirusWorld, "type", "cases")
+
+WorldSpreadCovid <- CoronavirusWorld2 %>% group_by(name) %>% mutate(CumulConfirmes=cumsum(confirmed)) %>% mutate(CumulMorts=cumsum(death)) %>% mutate(CumulSoignes=cumsum(recovered))
+```
+
+```{r}
+WorldSpreadCovid$category1 <- ifelse(
+  WorldSpreadCovid$CumulConfirmes >= -1 &
+    WorldSpreadCovid$CumulConfirmes <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulConfirmes >= 1 &
+      WorldSpreadCovid$CumulConfirmes <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulConfirmes >= 101 &
+        WorldSpreadCovid$CumulConfirmes <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulConfirmes >= 1001 &
+          WorldSpreadCovid$CumulConfirmes <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulConfirmes >= 3001 &
+            WorldSpreadCovid$CumulConfirmes <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulConfirmes >= 5001 &
+              WorldSpreadCovid$CumulConfirmes <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulConfirmes >= 10001 &
+                WorldSpreadCovid$CumulConfirmes <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulConfirmes >= 20001 &
+                  WorldSpreadCovid$CumulConfirmes <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulConfirmes >= 50001 &
+                    WorldSpreadCovid$CumulConfirmes <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulConfirmes >= 100001 &
+                      WorldSpreadCovid$CumulConfirmes <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulConfirmes >= 200001 &
+                        WorldSpreadCovid$CumulConfirmes <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r}
+WorldSpreadCovid$category2 <- ifelse(
+  WorldSpreadCovid$CumulMorts >= -1 &
+    WorldSpreadCovid$CumulMorts <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulMorts >= 1 &
+      WorldSpreadCovid$CumulMorts <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulMorts >= 101 &
+        WorldSpreadCovid$CumulMorts <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulMorts >= 1001 &
+          WorldSpreadCovid$CumulMorts <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulMorts >= 3001 &
+            WorldSpreadCovid$CumulMorts <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulMorts >= 5001 &
+              WorldSpreadCovid$CumulMorts <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulMorts >= 10001 &
+                WorldSpreadCovid$CumulMorts <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulMorts >= 20001 &
+                  WorldSpreadCovid$CumulMorts <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulMorts >= 50001 &
+                    WorldSpreadCovid$CumulMorts <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulMorts >= 100001 &
+                      WorldSpreadCovid$CumulMorts <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulMorts >= 200001 &
+                        WorldSpreadCovid$CumulMorts <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r}
+WorldSpreadCovid$category3 <- ifelse(
+  WorldSpreadCovid$CumulSoignes >= -1 &
+    WorldSpreadCovid$CumulSoignes <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulSoignes >= 1 &
+      WorldSpreadCovid$CumulSoignes <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulSoignes >= 101 &
+        WorldSpreadCovid$CumulSoignes <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulSoignes >= 1001 &
+          WorldSpreadCovid$CumulSoignes <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulSoignes >= 3001 &
+            WorldSpreadCovid$CumulSoignes <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulSoignes >= 5001 &
+              WorldSpreadCovid$CumulSoignes <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulSoignes >= 10001 &
+                WorldSpreadCovid$CumulSoignes <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulSoignes >= 20001 &
+                  WorldSpreadCovid$CumulSoignes <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulSoignes >= 50001 &
+                    WorldSpreadCovid$CumulSoignes <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulSoignes >= 100001 &
+                      WorldSpreadCovid$CumulSoignes <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulSoignes >= 200001 &
+                        WorldSpreadCovid$CumulSoignes <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r}
+WorldMapCovid <- filter(WorldSpreadCovid, date == max(date))
+```
+
+```{r}
+content <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", "<strong>", WorldMapCovid$CumulConfirmes, "Confirmés", "</strong>", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
+
+content2 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", "<strong>", WorldMapCovid$CumulMorts, "Décés", "</strong>", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
+ 
+content3 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", "<strong>", WorldMapCovid$CumulSoignes, "Soignés", "</strong>")
+
+leaflet(WorldMapCovid) %>%
+  addFullscreenControl() %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category1) * 5,
+    popup = content,
+    color = "orange",
+    stroke = FALSE,
+    fillOpacity = 0.6,
+    group = "Confirmés"
+  )  %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category3) * 5,
+    popup = content3,
+    color = "green",
+    stroke = FALSE,
+    fillOpacity = 1,
+    group = "Soignés"
+  ) %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category2) * 5,
+    popup = content2,
+    color = "red",
+    stroke = FALSE,
+    fillOpacity = 1,
+    group = "Décès") %>%
+  addLayersControl(
+    overlayGroups = c("Confirmés", "Soignés", "Décès"),
+    options = layersControlOptions(collapsed = FALSE),
+    position = 'topright'
+  )
+```
+
+Puis rajouter une une timeline en bas du graphique pour pouvoir voir l'évolution

@@ -1,0 +1,295 @@
+---
+title: "Test"
+author: "Valentin Henriot / Gabin Coutand / Florian Colin"
+date: "06/04/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Etude sur les cas de Covid-19 recensés
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr) ## pensez à mettre les libraries ici, on s'y retrouvera plus facilement
+library(ggplot2)
+library(tidyr)
+library(plotly)
+library(kableExtra)
+library(readr)
+library(readxl)
+library(dplyr)
+library(rAmCharts)
+```
+
+```{r}
+coronavirus <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")## URL permettant de générer la data
+```
+
+```{r}
+summary_df <- coronavirus %>% group_by(Country.Region, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(-total_cases)
+
+summary_df %>% head(20)
+```
+
+```{r include=FALSE}
+coronavirus$date <- as.Date(coronavirus$date, "%Y-%m-%d")
+```
+
+```{r}
+coronavirus %>% 
+  filter(date == max(date)) %>%
+  select(country = Country.Region, type, cases) %>%
+  group_by(country, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type,
+              values_from = total_cases) %>%
+  arrange(-confirmed)
+```
+
+```{r}
+CoronavirusFR <- filter(coronavirus, Country.Region == "France" & Province.State == "") ## j'ai mis Province.State "", comme ça on a pas l'OutreMer
+```
+
+```{r}
+ggplot(CoronavirusFR) +
+ aes(x = date, fill = type, colour = type, weight = cases) +
+ geom_bar() +
+ scale_fill_hue() +
+ scale_color_hue() +
+ labs(y = "Nombre de cas", title = "Coronavirus en France", caption = "Source : Rami Krispin dataset coronavirus") +
+ ggthemes::theme_stata() ## graphique des nouveaux cas chaque jour (non-cumulé)
+```
+
+```{r}
+CoronavirusIT <- filter(coronavirus, Country.Region == "Italy")
+```
+
+```{r}
+ggplot(CoronavirusIT) +
+ aes(x = date, fill = type, colour = type, weight = cases) +
+ geom_bar() +
+ scale_fill_hue() +
+ scale_color_hue() +
+ labs(y = "Nombre de cas", title = "Coronavirus en Italie", caption = "Source : Rami Krispin dataset coronavirus") +
+ ggthemes::theme_stata() ## graphique des nouveaux cas chaque jour (non-cumulé)
+```
+
+```{r}
+CoronavirusDE <- filter(coronavirus, Country.Region == "Germany")
+```
+
+```{r}
+ggplot(CoronavirusDE) +
+ aes(x = date, fill = type, colour = type, weight = cases) +
+ geom_bar() +
+ scale_fill_hue() +
+ scale_color_hue() +
+ labs(y = "Nombre de cas", title = "Coronavirus en Allemagne", caption = "Source : Rami Krispin dataset coronavirus") +
+ ggthemes::theme_stata() ## graphique des nouveaux cas chaque jour (non-cumulé)
+```
+
+```{r}
+CoronavirusSPA <- filter(coronavirus, Country.Region == "Spain")
+```
+
+```{r}
+ggplot(CoronavirusSPA) +
+ aes(x = date, fill = type, colour = type, weight = cases) +
+ geom_bar() +
+ scale_fill_hue() +
+ scale_color_hue() +
+ labs(y = "Nombre de cas", title = "Coronavirus en Espagne", caption = "Source : Rami Krispin dataset coronavirus") +
+ ggthemes::theme_stata() ## graphique des nouveaux cas chaque jour (non-cumulé)
+```
+
+```{r}
+CoronavirusUK <- filter(coronavirus, Country.Region == "United Kingdom")
+```
+
+```{r}
+ggplot(CoronavirusUK) +
+  aes(x= date, fill = type, colour = type, weight = cases) + 
+  geom_bar() +
+  scale_fill_hue() + 
+  scale_color_hue() + 
+  labs(y = "Nombre de cas", title = "Coronavirus au Royaume-Uni", caption = "Source : Rami Krispin dataset coronavirus") + 
+  ggthemes::theme_stata()
+```
+
+```{r}
+CombineCountries <- filter(coronavirus, Country.Region == "France" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy")
+```
+
+```{r}
+CombineGraph <-ggplot(CombineCountries, aes(date, cases))
+
+CombineGraph2 <- CombineGraph + geom_bar(stat = "identity", aes(fill = type)) +
+  facet_wrap(~ Country.Region) +
+  xlab("Date") + 
+  ggtitle("Cas de coronavirus") +
+  theme_linedraw()
+
+CombineGraph3 <- CombineGraph2 + theme(axis.title.y = element_blank()) 
+
+CombineGraph3 <- ggplotly(CombineGraph3)
+CombineGraph3 ## graphique de comparaison interactif des nouveaux cas chaque jour (non-cumulé)
+```
+
+```{r}
+DataCountries <- CombineCountries %>% group_by(Country.Region, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(Country.Region)
+```
+
+```{r}
+DataCountries2 <- spread(DataCountries, "type", "total_cases")
+```
+
+```{r}
+DataCountries2$confirmed <- as.numeric(DataCountries2$confirmed)
+DataCountries2$death <- as.numeric(DataCountries2$death)
+DataCountries2$recovered <- as.numeric(DataCountries2$recovered) 
+```
+
+```{r warning=FALSE}
+DataCountries2$"Ratio death/confirmed" <- DataCountries2$death/DataCountries2$confirmed*100
+#DataCountries2$"Ratio recovered/confirmed" <- DataCountries2$recovered/DataCountries2$confirmed*100
+```
+
+```{r}
+library(kableExtra)
+kable(DataCountries2) %>%
+  kable_styling("striped", full_width = F) %>%
+  column_spec(3, bold = T) %>%
+  row_spec(1, bold = T, color = "white", background = "blue") %>%
+  row_spec(2, bold = T, color = "white", background = "red") %>%
+  row_spec(3, bold = T, color = "white", background = "green") %>%
+  row_spec(4, bold = T, color = "white", background = "orange") ## à voir si on rajoute le ratio recovered/confirmed (pas sûr que ce soit pertinent)
+```
+
+### Faire une courbe cumulative des confirmés et des décédés
+
+```{r}
+summary_df2 <- spread(coronavirus, "type", "cases")
+```
+
+```{r}
+SpreadCountries <- filter(summary_df2, Country.Region == "France" & Province.State == "" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy") 
+```
+
+```{r}
+SpreadCountries1 <- SpreadCountries[,-1]
+```
+
+```{r}
+CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulConfirmes=cumsum(confirmed))
+```
+
+```{r}
+ggplot(CountriesConfirmed) +
+ aes(x = date, y = CumulConfirmes, colour = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Nombre de cas confirmés (cumulés)", title = "Nombre de personnes infectées par le Covid-19") +
+ ggthemes::theme_stata() ## graphique cumulatif des cas confirmés de Covid-19 
+```
+
+```{r}
+CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulMort=cumsum(death))
+```
+
+```{r}
+ggplot(CountriesDeath) +
+ aes(x = date, y = CumulMort, colour = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Nombre de décès (cumulés)", title = "Décès liés au Covid-19") +
+ ggthemes::theme_stata() ## graphique cumulatif des cas de décés dû au Covid-19 
+```
+
+```{r}
+LeftJoin1 <- left_join(CountriesConfirmed, CountriesDeath, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
+
+CountriesRecovered <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulSoigne=cumsum(recovered))
+
+LeftJoin2 <- left_join(LeftJoin1, CountriesRecovered, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
+
+LeftJoin2$confirmed <- NULL
+LeftJoin2$death <- NULL
+LeftJoin2$recovered <- NULL
+LeftJoin2$Lat <- NULL
+LeftJoin2$Long <- NULL
+
+LeftJoin2$CumulConfirmes <- as.numeric(LeftJoin2$CumulConfirmes)
+LeftJoin2$CumulMort <- as.numeric(LeftJoin2$CumulMort)
+LeftJoin2$CumulSoigne <- as.numeric(LeftJoin2$CumulSoigne)
+
+FinalCumul <- LeftJoin2 %>% gather(Total, Value, -Country.Region, -date)
+```
+
+```{r}
+ggplot(FinalCumul) +
+ aes(x = date, y = Value, colour = Country.Region, group = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Effectifs cumulés (par catégorie)", title = "Graphique de l'évolution du Covid-19") +
+ ggthemes::theme_stata() +
+ facet_wrap(vars(Total), scales = "free") ## à voir si on peut pas faire un graph plus parlant
+```
+
+```{r}
+CombineCumul <-ggplot(FinalCumul, aes(date, Value))
+
+CombineCumul2 <- CombineCumul + geom_bar(stat = "identity", aes(fill = Total)) +
+  facet_wrap(~ Country.Region) +
+  xlab("Date") + 
+  ggtitle("Effectifs cumulés par catégorie de l'évolution du Covid-19") +
+  theme_linedraw()
+
+CombineCumul3 <- CombineCumul2 + theme(axis.title.y = element_blank()) 
+
+CombineCumul3 <- ggplotly(CombineCumul3)
+CombineCumul3 ## graph interactif sur les effectifs cumulés
+```
+
+# Évolution du CAC 40 
+```{r}
+CAC40 <- read_xlsx("PX1-3.xlsx")
+
+CAC40$date <- as.Date(CAC40$date)
+
+ggplot(CAC40) +
+ aes(x = date, y = cloture) +
+ geom_line(size = 0.78) +
+ scale_color_hue() +
+ labs(x = "Date", y = "Cours de cloture", title = "Évolution de l'indice boursier CAC 40", subtitle = "Depuis janvier 2020") +
+ hrbrthemes::theme_modern_rc()
+```
+
+# Évolution du S&P 500
+
+```{r}
+SP500 <- read_xlsx("SPX.xlsx")
+
+SP500$date <- as.Date(SP500$date) #mettre la colonne date sous le bon format
+SP500 <- dplyr::rename(SP500, cloture = fermeture)
+
+ggplot(SP500) +
+ aes(x = date, y = cloture) +
+ geom_line(size = 0.78, colour = "#0c4c8a") +
+ labs(x = "Date", y = "Cours de cloture", title = "Evolution du S&P 500", subtitle = "depuis janvier 2020") +
+ hrbrthemes::theme_modern_rc()
+
+```
+
+
+
+
+
+
+
+
