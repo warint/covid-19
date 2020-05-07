@@ -44,7 +44,6 @@ covidTwitter2 <- read_csv("TweetCovid.csv")
 
 ```{r}
 tweets.deconfinement = select(covidTwitter2, screen_name, text) # sélectionner uniquement les utilisateurs et les tweets
-tweets.deconfinement
 ```
 
 ```{r}
@@ -71,6 +70,14 @@ head(tweets.deconfinement$text)
 
 
 ```{r}
-cleaned_tweets.deconfinement %>% count(word, sort = TRUE) %>% top_n(10) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #deconfinement tweets")
+cleaned_tweets.deconfinement %>% count(word, sort = TRUE) %>% top_n(20) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #deconfinement tweets")
+```
+
+```{r}
+bing_deconfinement = cleaned_tweets.deconfinement %>% inner_join(get_sentiments("bing")) %>% count(word, sentiment, sort = TRUE) %>% ungroup()
+```
+
+```{r}
+bing_deconfinement %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #deconfinement (07/05/2020)", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
 ```
 
