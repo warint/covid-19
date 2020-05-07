@@ -9,8 +9,12 @@ output: html_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r}
+```{r message=FALSE, warning=FALSE}
 library(rtweet)
+library(dplyr)
+library(readr)
+library(tidytext)
+library(ggplot2)
 ```
 
 ```{r}
@@ -18,7 +22,7 @@ get_token()
 ```
 
 ```{r}
-covidTwitter <- search_tweets("#confinement", n=1000, include_rts = FALSE, retryonratelimit = TRUE)
+covidTwitter <- search_tweets("#deconfinement", n=1000, include_rts = FALSE, retryonratelimit = TRUE) # recherche en date du 07 mai 2020
 ```
 
 ```{r}
@@ -27,5 +31,46 @@ covidTwitter
 
 ```{r}
 users_data(covidTwitter)
+```
+
+```{r}
+save_as_csv(covidTwitter, file_name = "TweetCovid", prepend_ids = TRUE, na = "",
+  fileEncoding = "UTF-8")
+```
+
+```{r message=FALSE, warning=FALSE}
+covidTwitter2 <- read_csv("TweetCovid.csv")
+```
+
+```{r}
+tweets.deconfinement = select(covidTwitter2, screen_name, text) # sélectionner uniquement les utilisateurs et les tweets
+tweets.deconfinement
+```
+
+```{r}
+tweets.deconfinement$stripped_text1 <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", tweets.deconfinement$text) # enlever les re-tweet
+
+tweets.deconfinement$stripped_text1 <- gsub("http\\w+", "", tweets.deconfinement$stripped_text1) # enlever les liens hypertextes
+
+tweets.deconfinement$stripped_text1 <- gsub("pictwitter\\w+ *", "", tweets.deconfinement$stripped_text1) # enlever les images
+
+tweets.deconfinement$stripped_text1 <- gsub("t.co", "", tweets.deconfinement$stripped_text1)
+```
+
+```{r}
+tweets.deconfinement_stem <- unnest_tokens(select(tweets.deconfinement, stripped_text1), word, stripped_text1) # enlever l'id utilisateur et compter chaque mot séparément
+```
+
+```{r}
+cleaned_tweets.deconfinement <- anti_join(tweets.deconfinement_stem, stopwordslangs)
+```
+
+```{r}
+head(tweets.deconfinement$text)
+```
+
+
+```{r}
+cleaned_tweets.deconfinement %>% count(word, sort = TRUE) %>% top_n(10) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #deconfinement tweets")
 ```
 
