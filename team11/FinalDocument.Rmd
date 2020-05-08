@@ -2,14 +2,17 @@
 title: "Hacking Health Covid - Team 11"
 author: "Valentin Henriot / Florian Colin / Gabin Coutand"
 date: "08/05/2020"
-output: html_document
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r message=FALSE, warning=FALSE}
+```{r message=FALSE, warning=FALSE, include=FALSE}
 library(dplyr) 
 library(tidyr)
 library(leaflet)
@@ -26,6 +29,9 @@ library(dplyr)
 library(rAmCharts)
 library(lubridate)
 library(gganimate)
+library(rtweet)
+library(tidytext)
+library(lubridate)
 ```
 
 <style>
@@ -240,7 +246,7 @@ WorldMapCovid <- filter(WorldSpreadCovid, date == max(date))
 
 ## World Map Covid-19
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
 content <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", "<strong>", WorldMapCovid$CumulConfirmes, "Confirmés", "</strong>", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
 
 content2 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", "<strong>", WorldMapCovid$CumulMorts, "Décés", "</strong>", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
@@ -304,9 +310,7 @@ mutate(CumulMorts=cumsum(death))
 PlotCumsumDeath$CumulMorts <- as.numeric(PlotCumsumDeath$CumulMorts)
 ```
 
-```{r message=FALSE, warning=FALSE}
-library(lubridate)
-
+```{r eval=FALSE, include=FALSE}
 Plot_formatted <- PlotCumsumConfirmed %>%
   mutate(date = ymd(date)) %>%
   group_by(date) %>%
@@ -365,15 +369,13 @@ animate(anim, 1000, fps = 15,  width = 1200, height = 1000,
         renderer = gifski_renderer("gganimcovid.gif"))
 ```
 
-![Alt Text](gganimcovid.gif)
-
-Faire l'analyse (bien insister sur la progression des US / Europe)
+![Faire l'analyse bien insister sur la progression des US / Europe](gganimcovid.gif)
 
 ## Stock market performance
 
 ### CAC 40 market
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 CAC40 <- read_xlsx("PX1-3.xlsx")
 
 CAC40$date <- as.Date(CAC40$date)
@@ -390,7 +392,7 @@ Analyse à faire
 
 ### S&P 500 market
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 SP500 <- read_xlsx("SPX.xlsx")
 
 SP500$date <- as.Date(SP500$date) #mettre la colonne date sous le bon format
@@ -410,7 +412,7 @@ Analyse à faire
 
 Expliquer pourquoi l'analyse localisée, quels pays, etc
 
-```{r}
+```{r include=FALSE}
 coronavirus <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
 ```
 
@@ -439,14 +441,14 @@ coronavirus %>%
 
 ## Pooled analysis
 
-```{r}
+```{r include=FALSE}
 CombineCountries <- filter(coronavirus, Country.Region == "France" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy")
 ```
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 CombineGraph <-ggplot(CombineCountries, aes(date, cases))
 
-CombineGraph2 <- CombineGraph + geom_bar(stat = "identity", aes(fill = type)) +
+CombineGraph2 <- CombineGraph + geom_bar(stat = "identity", aes(colour = type)) +
   facet_wrap(~ Country.Region) +
   xlab("Date") + 
   ggtitle("Cas de coronavirus") +
@@ -460,29 +462,29 @@ CombineGraph3
 
 Analyse à faire
 
-```{r}
+```{r include=FALSE}
 DataCountries <- CombineCountries %>% group_by(Country.Region, type) %>%
   summarise(total_cases = sum(cases)) %>%
   arrange(Country.Region)
 ```
 
-```{r}
+```{r include=FALSE}
 DataCountries2 <- spread(DataCountries, "type", "total_cases")
 ```
 
-```{r}
+```{r include=FALSE}
 DataCountries2$confirmed <- as.numeric(DataCountries2$confirmed)
 DataCountries2$death <- as.numeric(DataCountries2$death)
 DataCountries2$recovered <- as.numeric(DataCountries2$recovered) 
 ```
 
-```{r warning=FALSE}
+```{r warning=FALSE, include=FALSE}
 DataCountries2$"Ratio death/confirmed" <- DataCountries2$death/DataCountries2$confirmed*100
 ```
 
 ## Comparative table
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 library(kableExtra)
 kable(DataCountries2) %>%
   kable_styling("striped", full_width = F) %>%
@@ -495,25 +497,25 @@ kable(DataCountries2) %>%
 
 Analyse à faire (ratios, nombre total confirmés)
 
-```{r}
+```{r include=FALSE}
 summary_df2 <- spread(coronavirus, "type", "cases")
 ```
 
-```{r}
+```{r include=FALSE}
 SpreadCountries <- filter(summary_df2, Country.Region == "France" & Province.State == "" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy") 
 ```
 
-```{r}
+```{r include=FALSE}
 SpreadCountries1 <- SpreadCountries[,-1]
 ```
 
 ## Comparative analysis of cumulative confirmed cases
 
-```{r}
+```{r include=FALSE}
 CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulConfirmes=cumsum(confirmed))
 ```
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 ggplot(CountriesConfirmed) +
  aes(x = date, y = CumulConfirmes, colour = Country.Region) +
  geom_line(size = 1L) +
@@ -526,11 +528,11 @@ Analyse à faire
 
 ## Comparative analysis of the number of cumulative death cases
 
-```{r}
+```{r include=FALSE}
 CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulMort=cumsum(death))
 ```
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 ggplot(CountriesDeath) +
  aes(x = date, y = CumulMort, colour = Country.Region) +
  geom_line(size = 1L) +
@@ -543,7 +545,7 @@ Analyse à faire
 
 ## Comparative analysis of all cumulated case types
 
-```{r}
+```{r include=FALSE}
 LeftJoin1 <- left_join(CountriesConfirmed, CountriesDeath, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
 
 CountriesRecovered <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulSoigne=cumsum(recovered))
@@ -563,7 +565,7 @@ LeftJoin2$CumulSoigne <- as.numeric(LeftJoin2$CumulSoigne)
 FinalCumul <- LeftJoin2 %>% gather(Total, Value, -Country.Region, -date)
 ```
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 ggplot(FinalCumul) +
  aes(x = date, y = Value, colour = Country.Region, group = Country.Region) +
  geom_line(size = 1L) +
@@ -575,10 +577,10 @@ ggplot(FinalCumul) +
 
 Analyse à faire (axer sur le ralentissement de l'épidémie)
 
-```{r}
+```{r echo=FALSE, fig.align="center"}
 CombineCumul <-ggplot(FinalCumul, aes(date, Value))
 
-CombineCumul2 <- CombineCumul + geom_bar(stat = "identity", aes(fill = Total)) +
+CombineCumul2 <- CombineCumul + geom_bar(stat = "identity", aes(colour = Total)) +
   facet_wrap(~ Country.Region) +
   xlab("Date") + 
   ggtitle("Effectifs cumulés par catégorie de l'évolution du Covid-19") +
@@ -610,7 +612,7 @@ Impactbyindustry1 <- ggplot(Impactbyindustry) +
 Impactbyindustry1
 ```
 
-```{r echo=FALSE}
+```{r echo=FALSE, fig.align="center"}
 Impactbyindustry1 + theme(legend.title = element_text(size = 0, 
     face = "bold")) + theme(plot.subtitle = element_text(size = 12, 
     face = "bold"), axis.text.x = element_text(size = 0), 
@@ -622,4 +624,71 @@ Impactbyindustry1 + theme(legend.title = element_text(size = 0,
 Analyse à faire
 Peut être rajouter l'impact par industrie à ce jour ?
 
+## French people's feelings (Twitter analysis)
 
+```{r eval=FALSE, include=FALSE}
+get_token()
+```
+
+```{r eval=FALSE, include=FALSE}
+covidTwitter <- search_tweets("#deconfinement", n=1000, include_rts = FALSE, retryonratelimit = TRUE) # recherche en date du 07 mai 2020
+```
+
+```{r eval=FALSE, include=FALSE}
+covidTwitter
+```
+
+```{r eval=FALSE, include=FALSE}
+users_data(covidTwitter)
+```
+
+```{r eval=FALSE, include=FALSE}
+save_as_csv(covidTwitter, file_name = "TweetCovid", prepend_ids = TRUE, na = "",
+  fileEncoding = "UTF-8")
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+covidTwitter2 <- read_csv("TweetCovid.csv")
+```
+
+```{r include=FALSE}
+tweets.deconfinement = select(covidTwitter2, screen_name, text) # sélectionner uniquement les utilisateurs et les tweets
+```
+
+```{r include=FALSE}
+tweets.deconfinement$stripped_text1 <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", tweets.deconfinement$text) # enlever les re-tweet
+
+tweets.deconfinement$stripped_text1 <- gsub("http\\w+", "", tweets.deconfinement$stripped_text1) # enlever les liens hypertextes
+
+tweets.deconfinement$stripped_text1 <- gsub("pictwitter\\w+ *", "", tweets.deconfinement$stripped_text1) # enlever les images
+
+tweets.deconfinement$stripped_text1 <- gsub("t.co", "", tweets.deconfinement$stripped_text1)
+```
+
+```{r include=FALSE}
+tweets.deconfinement_stem <- unnest_tokens(select(tweets.deconfinement, stripped_text1), word, stripped_text1) # enlever l'id utilisateur et compter chaque mot séparément
+```
+
+```{r include=FALSE}
+cleaned_tweets.deconfinement <- anti_join(tweets.deconfinement_stem, stopwordslangs)
+```
+
+```{r include=FALSE}
+head(tweets.deconfinement$text)
+```
+
+```{r include=FALSE}
+cleaned_tweets.deconfinement %>% count(word, sort = TRUE) %>% top_n(20) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #deconfinement tweets")
+```
+
+```{r include=FALSE}
+bing_deconfinement = cleaned_tweets.deconfinement %>% inner_join(get_sentiments("bing")) %>% count(word, sentiment, sort = TRUE) %>% ungroup()
+```
+
+```{r echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+bing_deconfinement %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #deconfinement (07/05/2020)", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
+```
+
+Analyse à faire (tweets en date du 07 mai 2020)
+
+# Conclusion
