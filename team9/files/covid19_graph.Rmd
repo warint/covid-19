@@ -1,0 +1,307 @@
+---
+title: "dataset"
+author: "Thibault Herpe"
+date: "28/04/2020"
+output: html_document
+---
+
+
+Our goal is to retrieve data from different databases and analyse it to find out if correlation can be found between the political regime and the number of deaths from the SARS-CoV-2 commonly named covid-19.
+
+# Collecting Data
+## Sherbrook University
+### Democracy Index
+
+
+Retrieving democracy index from Sherbrook University (EIU.DEMO.GLOBAL, 2017, 163 Countries)
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=TRUE}
+
+#Retrieving DEMOCRACY INDEX from Sherbrook University (EIU.DEMO.GLOBAL, 2017, 163 Countries)
+
+DEMOCRACY.INDEX =c( 2.55, 7.24, 5.98, 3.56, 8.61, 3.62, 1.93, 6.96, 4.11, 9.09, 8.42, 2.65, 2.71, 5.43, 3.13, 7.78, 5.61, 5.08, 5.49, 4.87, 7.81, 6.86, 7.03, 4.75, 2.33, 3.63, 3.61, 9.15, 7.88, 1.52, 7.84, 3.1, 7.59, 6.67, 3.71, 3.25, 1.61, 1.08, 8, 7.88, 3.93, 6.63, 3.31, 9.22, 2.76, 6.66, 3.36, 2.69, 6.02, 2.37, 8.08, 7.79, 3.03, 7.98, 3.42, 9.03, 7.8, 3.61, 4.06, 5.93, 6.69, 7.29, 5.86, 3.14, 1.81, 1.98, 6.46, 4.03, 5.72, 6.64, 7.23, 6.39, 4.09, 2.45, 9.15, 9.58, 7.79, 7.98, 7.29, 7.88, 3.87, 3.06, 5.11, 5.11, 3.85, 2.37, 6.64, 7.25, 4.72, 5.23, 2.32, 7.41, 8.81, 5.57, 5.11, 6.54, 5.49, 5.64, 4.87, 8.22, 3.82, 6.41, 5.94, 6.5, 5.69, 4.02, 3.83, 6.31, 5.18, 4.66, 3.76, 4.44, 9.87, 9.26, 3.04, 5.09, 1.95, 4.26, 7.08, 6.03, 6.31, 8.89, 6.49, 6.71, 6.67, 7.84, 3.19, 6.44, 8.53, 3.17, 3.19, 6.43, 6.15, 6.41, 4.66, 6.32, 7.16, 7.5, 2.15, 6.48, 9.39, 9.03, 6.76, 1.43, 1.93, 7.73, 5.47, 1.5, 7.62, 4.63, 7.19, 3.05, 7.04, 6.32, 1.72, 4.88, 5.69, 8.12, 3.87, 3.08, 2.07, 5.68, 3.16)
+
+#Retrieving ISO COUNTRY CODE from Sherbrook University
+
+ISO = c( "AFG", "ZAF", "ALB", "DZA", "DEU", "AGO", "SAU", "ARG", "ARM", "AUS", "AUT", "AZE", "BHR", "BGD", "BLR", "BEL", "BEN", "BTN", "BOL", "BIH", "BWA", "BRA", "BGR", "BFA", "BDI", "KHM", "CMR", "CAN", "CPV", "CAF", "CHL", "CHN", "CYP", "COL", "COM", "COG", "COD", "PRK", "KOR", "CRI", "CIV", "HRV", "CUB", "DNK", "DJI", "DOM", "EGY", "ARE", "ECU", "ERI", "ESP", "EST", "SWZ", "USA", "ETH", "FIN", "FRA", "GAB", "GMB", "GEO", "GHA", "GRC", "GTM", "GIN", "GNQ", "GNB", "GUY", "HTI", "HND", "HUN", "IND", "IDN", "IRQ", "IRN", "IRL", "ISL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KGZ", "KWT", "LAO", "LSO", "LVA", "LBN", "LBR", "LBY", "LTU", "LUX", "MKD", "MDG", "MYS", "MWI", "MLI", "MAR", "MUS", "MRT", "MEX", "MDA", "MNG", "MON", "MOZ", "MMR", "NAM", "NPL", "NIC", "NER", "NGA", "NOR", "NZL", "OMN", "UGA", "UZB", "PAK", "PAN", "PNG", "PRY", "NLD", "PER", "PHL", "POL", "PRT", "QAT", "ROM", "GBR", "RUS", "RWA", "SLV", "SEN", "YUG", "SLE", "SGP", "SVK", "SVN", "SDN", "LKA", "SWE", "CHE", "SUR", "SYR", "TJK", "TWN", "TZA", "TCD", "CZE", "THA", "TMP", "TGO", "TTO", "TUN", "TKM", "TUR", "UKR", "URY", "VEN", "VNM", "YEM", "ZMB", "ZWE")
+
+```
+
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#Creation of a DATAFRAME called DEMOCRACY
+
+democracy = data.frame(ISO,DEMOCRACY.INDEX)
+
+#Ordering DEMOCRACY DATAFRAME by alphabetical order on ISO COUNTRY CODE
+
+democracy <- democracy[order(ISO),]
+
+```
+
+Saving of the data in a democracy index excel file
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#Writing of the DEMOCRACY INDEX EXCEL FILE
+
+library(writexl)
+
+write_xlsx(x = democracy, path = "dataset_democracy_index.xlsx", col_names = TRUE)
+
+```
+
+
+### Press Liberty Index
+
+
+Retrieving the press liberty index from Sherbrook University (PF.LIB.PRESS.RSF.IN, 2017, 166 Countries)
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=TRUE}
+
+#Retrieving PRESS LIBERTY INDEX from Sherbrook University (PF.LIB.PRESS.RSF.IN, 2017, 166 Countries)
+
+PRESS.LIBERTY.INDEX =c( 39.46, 20.12, 29.92, 42.83, 14.97, 40.42, 66.02, 25.07, 30.38, 16.02, 13.47, 56.4, 58.88, 48.36, 52.43, 12.75, 30.32, 30.73, 33.88, 27.83, 24.93, 33.58, 35.01, 23.85, 55.78, 42.07, 41.59, 16.53, 18.02, 36.12, 20.53, 77.66, 19.79, 41.47, 24.33, 36.73, 52.67, 84.98, 27.61, 11.93, 30.42, 29.59, 71.75, 10.36, 70.54, 26.76, 55.78, 39.39, 33.64, 84.24, 18.69, 13.55, 51.27, 23.88, 50.34, 8.92, 22.24, 34.83, 46.7, 27.76, 17.95, 30.89, 39.33, 33.15, 66.47, 30.09, 26.8, 26.36, 43.75, 29.01, 42.94, 39.93, 54.03, 65.12, 14.08, 13.03, 31.01, 26.26, 12.73, 29.44, 43.24, 54.01, 31.2, 30.92, 30.45, 33.61, 66.41, 28.78, 18.62, 33.01, 31.12, 56.81, 21.37, 14.72, 35.74, 26.71, 46.89, 28.97, 38.27, 42.42, 26.67, 26.49, 48.97, 30.41, 28.95, 33.65, 31.05, 41.82, 17.08, 33.02, 31.01, 27.21, 39.69, 7.6, 13.98, 40.46, 35.94, 66.11, 43.55, 32.12, 25.07, 35.64, 11.28, 30.98, 41.08, 26.47, 15.77, 39.83, 24.46, 22.26, 49.45, 54.11, 27.24, 26.72, 28.05, 30.73, 51.1, 15.51, 21.7, 65.95, 73.56, 48.16, 44.34, 8.27, 12.13, 16.07, 81.49, 50.27, 24.37, 30.65, 39.66, 16.91, 44.69, 32.82, 30.75, 20.62, 32.22, 84.19, 52.98, 33.19, 17.43, 42.94, 73.96, 65.8, 36.48, 41.44)
+
+#Retrieving ISO COUNTRY CODE from Sherbrook University
+
+ISO = c(  "AFG", "ZAF", "ALB", "DZA", "DEU", "AGO", "SAU", "ARG", "ARM", "AUS", "AUT", "AZE", "BHR", "BGD", "BLR", "BEL", "BEN", "BTN", "BOL", "BIH", "BWA", "BRA", "BGR", "BFA", "BDI", "KHM", "CMR", "CAN", "CPV", "CAF", "CHL", "CHN", "CYP", "COL", "COM", "COG", "COD", "PRK", "KOR", "CRI", "CIV", "HRV", "CUB", "DNK", "DJI", "DOM", "EGY", "ARE", "ECU", "ERI", "ESP", "EST", "SWZ", "USA", "ETH", "FIN", "FRA", "GAB", "GMB", "GEO", "GHA", "GRC", "GTM", "GIN", "GNQ", "GNB", "GUY", "HTI", "HND", "HUN", "IND", "IDN", "IRQ", "IRN", "IRL", "ISL", "ISR", "ITA", "JAM", "JPN", "JOR", "KAZ", "KEN", "KGZ", "KSV", "KWT", "LAO", "LSO", "LVA", "LBN", "LBR", "LBY", "LTU", "LUX", "MKD", "MDG", "MYS", "MWI", "MLI", "MAR", "MUS", "MRT", "MEX", "MDA", "MNG", "MON", "MOZ", "MMR", "NAM", "NPL", "NIC", "NER", "NGA", "NOR", "NZL", "OMN", "UGA", "UZB", "PAK", "PAN", "PNG", "PRY", "NLD", "PER", "PHL", "POL", "PRT", "QAT", "ROM", "GBR", "RUS", "RWA", "SLV", "SEN", "YUG", "SLE", "SGP", "SVK", "SVN", "SOM", "SDN", "SSD", "LKA", "SWE", "CHE", "SUR", "SYR", "TJK", "TWN", "TZA", "TCD", "CZE", "THA", "TMP", "TGO", "TTO", "TUN", "TKM", "TUR", "UKR", "URY", "VEN", "VNM", "YEM", "ZMB", "ZWE")
+
+```
+
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#Creation of a DATAFRAME called PRESS
+
+press = data.frame(ISO,PRESS.LIBERTY.INDEX)
+
+#Ordering PRESS DATAFRAME by alphabetical order on ISO COUNTRY CODE
+
+press <- press[order(ISO),]
+
+#TRANSFORMING the REPRESSION PRESS INDEX into a LIBERTY PRESS INDEX
+press$Press.Liberty <- 100 - press$PRESS.LIBERTY.INDEX
+
+#DELETING the old REPRESSION COLUMN
+press$PRESS.LIBERTY.INDEX <- NULL
+
+```
+
+
+Saving of the data in a press liberty index excel file
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#Writing of the PRESS LIBERTY INDEX EXCEL FILE
+
+library(writexl)
+
+write_xlsx(x = press, path = "dataset_press_liberty_index.xlsx", col_names = TRUE)
+
+```
+
+
+## European Union Open Data Portal
+### Covid 19 Cases
+
+Retrieving covid-19 cases from the European Union Open Data Portal (Covid 19 cases, 28-04-2020, --- Countries)
+```{r setup, include=FALSE}
+library(readr)
+
+# Downloading data from the Data Europa Portal and saving xlsx file into covid19_cases variable
+covid19_cases <- read_csv("https://opendata.ecdc.europa.eu/covid19/casedistribution/csv")
+
+
+#Deleting unwanted columns
+covid19_cases[,1] <- NULL
+covid19_cases[,7] <- NULL
+covid19_cases[,9] <- NULL
+
+#Renaming columns
+names(covid19_cases)[1] <- "Day"
+names(covid19_cases)[2] <- "Month"
+names(covid19_cases)[3] <- "Year"
+names(covid19_cases)[4] <- "Cases"
+names(covid19_cases)[5] <- "Deaths"
+names(covid19_cases)[6] <- "Country"
+names(covid19_cases)[7] <- "ISO"
+names(covid19_cases)[8] <- "Population"
+
+head(covid19_cases)
+
+```
+
+Saving of the covid19 data in a dataset excel file
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+#Writing of the DATASET EXCEL FILE
+
+library(writexl)
+
+write_xlsx(x = covid19_cases, path = "dataset_covid19_cases_index.xlsx", col_names = TRUE)
+
+```
+
+
+
+# Data Wrangling
+
+Merging the press liberty index with the democracy index
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#MERGING the PRESS LIBERTY INDEX with the DEMOCRACY INDEX (different rows in ISO CODE)
+
+dataset_final = merge(press, democracy, by="ISO")
+
+```
+
+Creation of a translation index for ISO country code and country name
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(readxl)
+library(dplyr)
+
+#IMPORT and SAVING of ISO COUNTRY CODE index
+ISO_COUNTRY_REDUCED <- read_excel("ISO_TRANSLATION.xlsx")
+
+#FILTERING ISO_COUNTRY_REDUCED to only keep actual countries
+ISO_COUNTRY_REDUCED <- filter(ISO_COUNTRY_REDUCED, ISO_COUNTRY_REDUCED$`End Valid Year` == "Now")
+
+
+# DELETING unwanted columns
+ISO_COUNTRY_REDUCED[, 7:8] <- NULL
+ISO_COUNTRY_REDUCED[, 3:4] <- NULL
+ISO_COUNTRY_REDUCED[, 1] <- NULL
+
+#RENAMING columns
+
+names(ISO_COUNTRY_REDUCED)[1] <- "Country"
+names(ISO_COUNTRY_REDUCED)[3] <- "ISO"
+names(ISO_COUNTRY_REDUCED)[2] <- "ISO2"
+
+
+ISO_COUNTRY_REDUCED <- filter(ISO_COUNTRY_REDUCED, ISO_COUNTRY_REDUCED$ISO != "N/A")
+
+```
+
+Saving of the iso_country_reduced index in a dataset excel file
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+#Writing of the DATASET EXCEL FILE
+library(writexl)
+
+write_xlsx(x = ISO_COUNTRY_REDUCED, path = "iso_country_reduced.xlsx", col_names = TRUE)
+
+```
+
+Merging the press liberty index with the democracy index
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#MERGING the ISO_COUNTRY_REDUCED with the DATASET_FINAL (PRESS INDEX, DEMOCRACRY INDEX)
+
+dataset_final <- merge(ISO_COUNTRY_REDUCED, dataset_final, by = "ISO")
+
+```
+
+
+Filtering and summarizing of Death cases and Confirmed cases within the dataset final excel file. 
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+library(dplyr)
+
+
+#FILTERING DEATHS CASES in the covid19_cases sum up file
+sum_deaths_country <- covid19_cases %>% 
+  group_by(ISO) %>%  
+  summarize(Deaths = sum(Deaths, na.rm=TRUE))
+
+
+#FILTERING CONFIRMED CASES in the covid19_cases sum up file
+sum_confirmed_country <- covid19_cases %>% 
+  group_by(ISO) %>%  
+  summarize(Confirmed = sum(Cases, na.rm=TRUE))
+
+
+#FILTERING POPULATION in the covid19_cases sum up file
+ population_country <- covid19_cases %>% 
+  group_by(ISO) %>%  
+  summarize(Population = mean(Population, na.rm=TRUE))
+ 
+
+```
+
+Merging death cases sum, confirmed cases sum and country's population in the dataset final file 
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(dplyr)
+
+
+#MERGING DEATH CASES SUM and DATASET FINAL by ISO code
+dataset_final = merge(sum_deaths_country, dataset_final, by = "ISO")
+
+dataset_final = merge(sum_confirmed_country, dataset_final, by = "ISO")
+
+#MERGING DEATH CASES SUM and DATASET FINAL by ISO code
+dataset_final = merge(population_country, dataset_final, by = "ISO")
+
+```
+
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#MOVING COLUMNS in order to have country's name as first column
+dataset_final <- dataset_final[, c(5, 1, 6, 2, 3, 4, 7, 8)]
+
+```
+
+Calculation of Deaths ratio and confirmed cases among the total population, deaths ratio among confirmed cases.
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#MOVING COLUMNS in order to have country's name as first column
+
+dataset_final$Death.Ratio.Population <- (dataset_final$Deaths / dataset_final$Population) * 1000000
+dataset_final$Confirmed.Ratio.Population <- (dataset_final$Confirmed / dataset_final$Population) * 1000000
+dataset_final$Death.Ratio.Confirmed <- (dataset_final$Deaths / dataset_final$Confirmed) * 100
+```
+
+Saving data in a dataset excel file
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#Writing of the DATASET EXCEL FILE
+
+library(writexl)
+
+write_xlsx(x = dataset_final, path = "dataset_final.xlsx", col_names = TRUE)
+
+```
+
+
+# Data Analysis
+
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#CENTREE REDUITE
+
+dataset_final_correl <- dataset_final
+
+dataset_final_correl[,1:3] <- NULL
+
+dataset_final_correl
+
+mcov <- scale(dataset_final_correl)
+
+
+```
+
+!!!! PROBLEME ICI !!!!
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+#TEST CORRELATION
+
+
+mcor <- cor(mcov)
+
+mcor
+
+```
+
+
+
+
+
