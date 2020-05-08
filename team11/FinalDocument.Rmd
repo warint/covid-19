@@ -1,0 +1,625 @@
+---
+title: "Hacking Health Covid - Team 11"
+author: "Valentin Henriot / Florian Colin / Gabin Coutand"
+date: "08/05/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(dplyr) 
+library(tidyr)
+library(leaflet)
+library(leaflet.extras)
+library(leaftime)
+library(purrr)
+library(leafpop)
+library(ggplot2)
+library(plotly)
+library(kableExtra)
+library(readr)
+library(readxl)
+library(dplyr)
+library(rAmCharts)
+library(lubridate)
+library(gganimate)
+```
+
+<style>
+.html-widget {
+    margin: auto;
+}
+</style>
+
+```{r include=FALSE}
+CoronavirusWorld <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
+
+CoronavirusWorld[CoronavirusWorld == "" ] <- NA
+```
+
+```{r include=FALSE}
+CoronavirusWorld$name <- ifelse(is.na(CoronavirusWorld$Province.State) == TRUE, 
+                                paste0(CoronavirusWorld$Country.Region), paste0(CoronavirusWorld$Province.State))
+```
+
+```{r include=FALSE}
+CoronavirusWorld$date <- as.Date(CoronavirusWorld$date)
+```
+
+```{r include=FALSE}
+CoronavirusWorld2 <- spread(CoronavirusWorld, "type", "cases")
+
+WorldSpreadCovid <- CoronavirusWorld2 %>% group_by(name) %>% mutate(CumulConfirmes=cumsum(confirmed)) %>% mutate(CumulMorts=cumsum(death)) %>% mutate(CumulSoignes=cumsum(recovered))
+```
+
+```{r include=FALSE}
+WorldSpreadCovid$category1 <- ifelse(
+  WorldSpreadCovid$CumulConfirmes >= -1 &
+    WorldSpreadCovid$CumulConfirmes <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulConfirmes >= 1 &
+      WorldSpreadCovid$CumulConfirmes <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulConfirmes >= 101 &
+        WorldSpreadCovid$CumulConfirmes <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulConfirmes >= 1001 &
+          WorldSpreadCovid$CumulConfirmes <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulConfirmes >= 3001 &
+            WorldSpreadCovid$CumulConfirmes <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulConfirmes >= 5001 &
+              WorldSpreadCovid$CumulConfirmes <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulConfirmes >= 10001 &
+                WorldSpreadCovid$CumulConfirmes <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulConfirmes >= 20001 &
+                  WorldSpreadCovid$CumulConfirmes <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulConfirmes >= 50001 &
+                    WorldSpreadCovid$CumulConfirmes <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulConfirmes >= 100001 &
+                      WorldSpreadCovid$CumulConfirmes <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulConfirmes >= 200001 &
+                        WorldSpreadCovid$CumulConfirmes <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r include=FALSE}
+WorldSpreadCovid$category2 <- ifelse(
+  WorldSpreadCovid$CumulMorts >= -1 &
+    WorldSpreadCovid$CumulMorts <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulMorts >= 1 &
+      WorldSpreadCovid$CumulMorts <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulMorts >= 101 &
+        WorldSpreadCovid$CumulMorts <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulMorts >= 1001 &
+          WorldSpreadCovid$CumulMorts <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulMorts >= 3001 &
+            WorldSpreadCovid$CumulMorts <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulMorts >= 5001 &
+              WorldSpreadCovid$CumulMorts <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulMorts >= 10001 &
+                WorldSpreadCovid$CumulMorts <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulMorts >= 20001 &
+                  WorldSpreadCovid$CumulMorts <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulMorts >= 50001 &
+                    WorldSpreadCovid$CumulMorts <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulMorts >= 100001 &
+                      WorldSpreadCovid$CumulMorts <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulMorts >= 200001 &
+                        WorldSpreadCovid$CumulMorts <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r include=FALSE}
+WorldSpreadCovid$category3 <- ifelse(
+  WorldSpreadCovid$CumulSoignes >= -1 &
+    WorldSpreadCovid$CumulSoignes <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulSoignes >= 1 &
+      WorldSpreadCovid$CumulSoignes <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulSoignes >= 101 &
+        WorldSpreadCovid$CumulSoignes <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulSoignes >= 1001 &
+          WorldSpreadCovid$CumulSoignes <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulSoignes >= 3001 &
+            WorldSpreadCovid$CumulSoignes <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulSoignes >= 5001 &
+              WorldSpreadCovid$CumulSoignes <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulSoignes >= 10001 &
+                WorldSpreadCovid$CumulSoignes <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulSoignes >= 20001 &
+                  WorldSpreadCovid$CumulSoignes <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulSoignes >= 50001 &
+                    WorldSpreadCovid$CumulSoignes <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulSoignes >= 100001 &
+                      WorldSpreadCovid$CumulSoignes <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulSoignes >= 200001 &
+                        WorldSpreadCovid$CumulSoignes <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r include=FALSE}
+WorldMapCovid <- filter(WorldSpreadCovid, date == max(date))
+```
+
+# Global impact of the epidemic
+
+## World Map Covid-19
+
+```{r echo=FALSE}
+content <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", "<strong>", WorldMapCovid$CumulConfirmes, "Confirmés", "</strong>", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
+
+content2 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", "<strong>", WorldMapCovid$CumulMorts, "Décés", "</strong>", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
+ 
+content3 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", "<strong>", WorldMapCovid$CumulSoignes, "Soignés", "</strong>")
+
+leaflet(WorldMapCovid) %>%
+  addFullscreenControl() %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category1) * 5,
+    popup = content,
+    color = "orange",
+    stroke = FALSE,
+    fillOpacity = 0.6,
+    group = "Confirmés"
+  )  %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category3) * 5,
+    popup = content3,
+    color = "green",
+    stroke = FALSE,
+    fillOpacity = 1,
+    group = "Soignés"
+  ) %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category2) * 5,
+    popup = content2,
+    color = "red",
+    stroke = FALSE,
+    fillOpacity = 1,
+    group = "Décès") %>%
+  addLayersControl(
+    overlayGroups = c("Confirmés", "Soignés", "Décès"),
+    options = layersControlOptions(collapsed = FALSE),
+    position = 'topright'
+  )
+```
+
+Faire l'analyse
+
+## Coronavirus epidemic evolution around the world
+
+```{r eval=FALSE, include=FALSE}
+summary_df2
+
+summary_df2$Province.State[summary_df2$Province.State == "" ] <- NA
+
+summary_df2$name <- ifelse(is.na(summary_df2$Province.State) == TRUE, 
+                                paste0(summary_df2$Country.Region), paste0(summary_df2$Province.State))
+```
+
+```{r eval=FALSE, include=FALSE}
+PlotCumsumConfirmed <- summary_df2 %>% group_by(name) %>% mutate(CumulConfirmes=cumsum(confirmed))
+
+PlotCumsumConfirmed$CumulConfirmes <- as.numeric(PlotCumsumConfirmed$CumulConfirmes)
+
+PlotCumsumDeath <- summary_df2 %>% group_by(name) %>% 
+mutate(CumulMorts=cumsum(death))
+
+PlotCumsumDeath$CumulMorts <- as.numeric(PlotCumsumDeath$CumulMorts)
+```
+
+```{r message=FALSE, warning=FALSE}
+library(lubridate)
+
+Plot_formatted <- PlotCumsumConfirmed %>%
+  mutate(date = ymd(date)) %>%
+  group_by(date) %>%
+  mutate(rank = rank(-CumulConfirmes),
+         Value_rel = CumulConfirmes/CumulConfirmes[rank==1],
+         Value_lbl = paste0(" ",round(CumulConfirmes))) %>%
+  group_by(name) %>% 
+  filter(rank <=10) %>%
+  ungroup()
+```
+
+```{r eval=FALSE, include=FALSE}
+StaticPlotCovid = ggplot(Plot_formatted, aes(rank, group = name, 
+                fill = as.factor(name), color = as.factor(name))) +
+  geom_tile(aes(y = CumulConfirmes/2,
+                height = CumulConfirmes,
+                width = 0.9), alpha = 0.8, color = NA) +
+  geom_text(aes(y = 0, label = paste(name, " ")), vjust = 0.2, hjust = 1) +
+  geom_text(aes(y=CumulConfirmes, label = Value_lbl, hjust=0)) +
+  coord_flip(clip = "off", expand = FALSE) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_reverse() +
+  guides(color = FALSE, fill = FALSE) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+         axis.title.y=element_blank(),
+        legend.position="none",
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        panel.grid.major.x = element_line( size=.1, color="grey" ),
+        panel.grid.minor.x = element_line( size=.1, color="grey" ),
+        plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+        plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
+        plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+        plot.background=element_blank(),
+       plot.margin = margin(2,2, 2, 4, "cm"))
+```
+
+```{r eval=FALSE, include=FALSE}
+library(gganimate)
+
+anim = StaticPlotCovid + transition_states(date, transition_length = 4, state_length = 1) +
+  view_follow(fixed_x = TRUE)  +
+  labs(title = 'Évolution du nombre de cas de Covid 19 par pays : {closest_state}',  
+       subtitle  =  "10 premiers pays / régions",
+       caption  = "Nombre de cas confirmés | Data Source: Rami Krispin/coronavirus")
+```
+
+```{r eval=FALSE, include=FALSE}
+animate(anim, 1000, fps = 15,  width = 1200, height = 1000, 
+        renderer = gifski_renderer("gganimcovid.gif"))
+```
+
+![Alt Text](gganimcovid.gif)
+
+Faire l'analyse (bien insister sur la progression des US / Europe)
+
+## Stock market performance
+
+### CAC 40 market
+
+```{r}
+CAC40 <- read_xlsx("PX1-3.xlsx")
+
+CAC40$date <- as.Date(CAC40$date)
+
+ggplot(CAC40) +
+ aes(x = date, y = cloture) +
+ geom_line(size = 0.78) +
+ scale_color_hue() +
+ labs(x = "Date", y = "Cours de cloture", title = "Évolution de l'indice boursier CAC 40", subtitle = "Depuis janvier 2020") +
+ hrbrthemes::theme_modern_rc()
+```
+
+Analyse à faire
+
+### S&P 500 market
+
+```{r}
+SP500 <- read_xlsx("SPX.xlsx")
+
+SP500$date <- as.Date(SP500$date) #mettre la colonne date sous le bon format
+SP500 <- dplyr::rename(SP500, cloture = fermeture)
+
+ggplot(SP500) +
+ aes(x = date, y = cloture) +
+ geom_line(size = 0.78, colour = "#0c4c8a") +
+ labs(x = "Date", y = "Cours de cloture", title = "Evolution du S&P 500", subtitle = "depuis janvier 2020") +
+ hrbrthemes::theme_modern_rc()
+
+```
+
+Analyse à faire
+
+# European impact of the epidemic
+
+Expliquer pourquoi l'analyse localisée, quels pays, etc
+
+```{r}
+coronavirus <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
+```
+
+```{r include=FALSE}
+summary_df <- coronavirus %>% group_by(Country.Region, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(-total_cases)
+
+summary_df %>% head(20)
+```
+
+```{r include=FALSE}
+coronavirus$date <- as.Date(coronavirus$date, "%Y-%m-%d")
+```
+
+```{r include=FALSE}
+coronavirus %>% 
+  filter(date == max(date)) %>%
+  select(country = Country.Region, type, cases) %>%
+  group_by(country, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type,
+              values_from = total_cases) %>%
+  arrange(-confirmed)
+```
+
+## Pooled analysis
+
+```{r}
+CombineCountries <- filter(coronavirus, Country.Region == "France" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy")
+```
+
+```{r}
+CombineGraph <-ggplot(CombineCountries, aes(date, cases))
+
+CombineGraph2 <- CombineGraph + geom_bar(stat = "identity", aes(fill = type)) +
+  facet_wrap(~ Country.Region) +
+  xlab("Date") + 
+  ggtitle("Cas de coronavirus") +
+  theme_linedraw()
+
+CombineGraph3 <- CombineGraph2 + theme(axis.title.y = element_blank()) 
+
+CombineGraph3 <- ggplotly(CombineGraph3)
+CombineGraph3 
+```
+
+Analyse à faire
+
+```{r}
+DataCountries <- CombineCountries %>% group_by(Country.Region, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(Country.Region)
+```
+
+```{r}
+DataCountries2 <- spread(DataCountries, "type", "total_cases")
+```
+
+```{r}
+DataCountries2$confirmed <- as.numeric(DataCountries2$confirmed)
+DataCountries2$death <- as.numeric(DataCountries2$death)
+DataCountries2$recovered <- as.numeric(DataCountries2$recovered) 
+```
+
+```{r warning=FALSE}
+DataCountries2$"Ratio death/confirmed" <- DataCountries2$death/DataCountries2$confirmed*100
+```
+
+## Comparative table
+
+```{r}
+library(kableExtra)
+kable(DataCountries2) %>%
+  kable_styling("striped", full_width = F) %>%
+  column_spec(3, bold = T) %>%
+  row_spec(1, bold = T, color = "white", background = "blue") %>%
+  row_spec(2, bold = T, color = "white", background = "red") %>%
+  row_spec(3, bold = T, color = "white", background = "green") %>%
+  row_spec(4, bold = T, color = "white", background = "orange") 
+```
+
+Analyse à faire (ratios, nombre total confirmés)
+
+```{r}
+summary_df2 <- spread(coronavirus, "type", "cases")
+```
+
+```{r}
+SpreadCountries <- filter(summary_df2, Country.Region == "France" & Province.State == "" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy") 
+```
+
+```{r}
+SpreadCountries1 <- SpreadCountries[,-1]
+```
+
+## Comparative analysis of cumulative confirmed cases
+
+```{r}
+CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulConfirmes=cumsum(confirmed))
+```
+
+```{r}
+ggplot(CountriesConfirmed) +
+ aes(x = date, y = CumulConfirmes, colour = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Nombre de cas confirmés (cumulés)", title = "Nombre de personnes infectées par le Covid-19") +
+ ggthemes::theme_stata() ## graphique cumulatif des cas confirmés de Covid-19 
+```
+
+Analyse à faire
+
+## Comparative analysis of the number of cumulative death cases
+
+```{r}
+CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulMort=cumsum(death))
+```
+
+```{r}
+ggplot(CountriesDeath) +
+ aes(x = date, y = CumulMort, colour = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Nombre de décès (cumulés)", title = "Décès liés au Covid-19") +
+ ggthemes::theme_stata() ## graphique cumulatif des cas de décés dû au Covid-19 
+```
+
+Analyse à faire
+
+## Comparative analysis of all cumulated case types
+
+```{r}
+LeftJoin1 <- left_join(CountriesConfirmed, CountriesDeath, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
+
+CountriesRecovered <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulSoigne=cumsum(recovered))
+
+LeftJoin2 <- left_join(LeftJoin1, CountriesRecovered, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
+
+LeftJoin2$confirmed <- NULL
+LeftJoin2$death <- NULL
+LeftJoin2$recovered <- NULL
+LeftJoin2$Lat <- NULL
+LeftJoin2$Long <- NULL
+
+LeftJoin2$CumulConfirmes <- as.numeric(LeftJoin2$CumulConfirmes)
+LeftJoin2$CumulMort <- as.numeric(LeftJoin2$CumulMort)
+LeftJoin2$CumulSoigne <- as.numeric(LeftJoin2$CumulSoigne)
+
+FinalCumul <- LeftJoin2 %>% gather(Total, Value, -Country.Region, -date)
+```
+
+```{r}
+ggplot(FinalCumul) +
+ aes(x = date, y = Value, colour = Country.Region, group = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Effectifs cumulés (par catégorie)", title = "Graphique de l'évolution du Covid-19") +
+ ggthemes::theme_stata() +
+ facet_wrap(vars(Total), scales = "free") ## à voir si on peut pas faire un graph plus parlant
+```
+
+Analyse à faire (axer sur le ralentissement de l'épidémie)
+
+```{r}
+CombineCumul <-ggplot(FinalCumul, aes(date, Value))
+
+CombineCumul2 <- CombineCumul + geom_bar(stat = "identity", aes(fill = Total)) +
+  facet_wrap(~ Country.Region) +
+  xlab("Date") + 
+  ggtitle("Effectifs cumulés par catégorie de l'évolution du Covid-19") +
+  theme_linedraw()
+
+CombineCumul3 <- CombineCumul2 + theme(axis.title.y = element_blank()) 
+
+CombineCumul3 <- ggplotly(CombineCumul3)
+CombineCumul3 ## graph interactif sur les effectifs cumulés
+```
+
+Analyse à faire 
+
+# French impact of the epidemic
+
+## Impact by industry before the lockdown in France
+
+```{r include=FALSE}
+Impactbyindustry <- read_csv("Impactbyindustry.csv")
+```
+
+```{r include=FALSE}
+Impactbyindustry1 <- ggplot(Impactbyindustry) +
+ aes(x = Industries, fill = Industries, weight = `Traffic evolution`) +
+ geom_bar() +
+ scale_fill_viridis_d(option = "plasma") +
+ labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") +
+ ggthemes::theme_fivethirtyeight()
+Impactbyindustry1
+```
+
+```{r echo=FALSE}
+Impactbyindustry1 + theme(legend.title = element_text(size = 0, 
+    face = "bold")) + theme(plot.subtitle = element_text(size = 12, 
+    face = "bold"), axis.text.x = element_text(size = 0), 
+    plot.title = element_text(size = 15), 
+    legend.text = element_text(size = 10)) +labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", 
+    subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
+```
+
+Analyse à faire
+Peut être rajouter l'impact par industrie à ce jour ?
+
+
