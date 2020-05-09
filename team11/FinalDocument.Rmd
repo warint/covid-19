@@ -12,6 +12,11 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+<style>
+body {
+text-align: justify}
+</style>
+
 In the context of the global health crisis related to Covid-19, the SKEMA Global Lab in AI gave us the opportunity to study the impacts of this crisis on our world. First of all, we would like to thank the entire SKEMA Global Lab in AI team, who provided us with all the knowledge to master the different tools (and in particular Rstudio) essential to study the data on a large scale. We would also like to thank Mr Rami KRISPIN, who made his API available, without which we would not have been able to complete this project.
 
 Within the framework of our study, our team decided to first study the spread of the virus on a global scale as well as its financial consequences on the markets. In a second step, we focused on the spread of the virus within Europe, the policies implemented and their results to stop the spread of the virus. Finally, we decided to deepen the analysis on the impact of the virus in France, especially on the different industries but also on the feelings of the French people through a sentiment analysis using the Twitter API.
@@ -253,11 +258,11 @@ WorldMapCovid <- filter(WorldSpreadCovid, date == max(date))
 ## World Map Covid-19
 
 ```{r echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
-content <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", "<strong>", WorldMapCovid$CumulConfirmes, "Confirmés", "</strong>", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
+content <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", "<strong>", WorldMapCovid$CumulConfirmes, "Confirmed", "</strong>", "<br/>", WorldMapCovid$CumulMorts, "Death", "<br/>", WorldMapCovid$CumulSoignes, "Recovered")
 
-content2 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", "<strong>", WorldMapCovid$CumulMorts, "Décés", "</strong>", "<br/>", WorldMapCovid$CumulSoignes, "Soignés")
+content2 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmed", "<br/>", "<strong>", WorldMapCovid$CumulMorts, "Death", "</strong>", "<br/>", WorldMapCovid$CumulSoignes, "Recovered")
  
-content3 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmés", "<br/>", WorldMapCovid$CumulMorts, "Décés", "<br/>", "<strong>", WorldMapCovid$CumulSoignes, "Soignés", "</strong>")
+content3 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmed", "<br/>", WorldMapCovid$CumulMorts, "Death", "<br/>", "<strong>", WorldMapCovid$CumulSoignes, "Recovered", "</strong>")
 
 leaflet(WorldMapCovid) %>%
   addFullscreenControl() %>%
@@ -268,7 +273,7 @@ leaflet(WorldMapCovid) %>%
     color = "orange",
     stroke = FALSE,
     fillOpacity = 0.6,
-    group = "Confirmés"
+    group = "Confirmed"
   )  %>%
   addCircleMarkers(
     radius = ~ sqrt(category3) * 5,
@@ -276,7 +281,7 @@ leaflet(WorldMapCovid) %>%
     color = "green",
     stroke = FALSE,
     fillOpacity = 1,
-    group = "Soignés"
+    group = "Recovered"
   ) %>%
   addCircleMarkers(
     radius = ~ sqrt(category2) * 5,
@@ -284,15 +289,18 @@ leaflet(WorldMapCovid) %>%
     color = "red",
     stroke = FALSE,
     fillOpacity = 1,
-    group = "Décès") %>%
+    group = "Death") %>%
   addLayersControl(
-    overlayGroups = c("Confirmés", "Soignés", "Décès"),
+    overlayGroups = c("Confirmed", "Recovered", "Death"),
     options = layersControlOptions(collapsed = FALSE),
     position = 'topright'
   )
 ```
 
-Faire l'analyse
+It is an interactive map generated through the library (leaflet). This map shows for each country, the number of Covid-19 cases, the number of deaths related to the epidemic and the number of people treated. This map is dated 10 May 2020 (it has evolved since then).
+We can easily see that the two "cradles" of the epidemic are currently in Europe and the United States. These are the two regions of the world where the virus has been circulating most actively and where there have been the most coronavirus-related deaths. However, one must be cautious with this information, especially on the number of confirmed cases, because some countries (including France) do not have the material means to test their entire population, so the number of confirmed cases is underestimated.
+
+You can click on the different options at the top right of the map to choose the information you wish to display. You can also click on a country to see the detailed numbers for that country.
 
 ## Coronavirus epidemic evolution around the world
 
@@ -375,9 +383,11 @@ animate(anim, 1000, fps = 15,  width = 1200, height = 1000,
         renderer = gifski_renderer("gganimcovid.gif"))
 ```
 
-![Faire l'analyse bien insister sur la progression des US / Europe](gganimcovid.gif)
+![This gif shows the day by day evolution of the epidemic, it thus highlights the beginning of the spread in China, then in Europe and finally in the United States. The data generated stops on May 7, 2020, and has therefore evolved since then.](gganimcovid.gif)
 
 ## Stock market performance
+
+We chose two financial markets for this study and decided to study the period preceding the coronavirus crisis in the countries concerned, the aim being to demonstrate the anticipation of the markets but also the problems linked to the interdependence of all developed countries when a major crisis occurs.
 
 ### CAC 40 market
 
@@ -390,11 +400,11 @@ ggplot(CAC40) +
  aes(x = date, y = cloture) +
  geom_line(size = 0.78) +
  scale_color_hue() +
- labs(x = "Date", y = "Cours de cloture", title = "Évolution de l'indice boursier CAC 40", subtitle = "Depuis janvier 2020") +
+ labs(x = "Date", y = "Closing value", title = "Evolution of the stock market index CAC 40", subtitle = "Since January 2020") +
  hrbrthemes::theme_modern_rc()
 ```
 
-Analyse à faire
+The beginning of the containment took place on March 17 in France, we can see however that the CAC 40 market had fallen by more than 500 points before the end of February. This is explained by the fall of financial markets worldwide, indeed, China, which is the main exporting country of the planet was totally paralyzed by the Covid-19 pandemic, so, by domino effect, the fall of Chinese exports made all the markets collapse. This crisis has highlighted the "limits" of globalization and the interconnection between the different countries of the world. Indeed, when a country "falls", it risks dragging all of its partners with it. This interdependence therefore needs to be reviewed in order to avoid having to face this type of situation again in the future. A parallel can be drawn with the subprime crisis that originated in the United States and led to a global economic crisis.
 
 ### S&P 500 market
 
@@ -407,16 +417,16 @@ SP500 <- dplyr::rename(SP500, cloture = fermeture)
 ggplot(SP500) +
  aes(x = date, y = cloture) +
  geom_line(size = 0.78, colour = "#0c4c8a") +
- labs(x = "Date", y = "Cours de cloture", title = "Evolution du S&P 500", subtitle = "depuis janvier 2020") +
+ labs(x = "Date", y = "Closing value", title = "Evolution of the stock market index S&P 500", subtitle = "Since February 2020") +
  hrbrthemes::theme_modern_rc()
 
 ```
 
-Analyse à faire
+Concerning the S&P 500, the same conclusion can be drawn from this crisis, indeed, the coronavirus crisis arrived in the United States in mid-March but the financial markets started to collapse long before. This collapse is due in part to the anticipation of the markets, but more importantly to the interconnection of the various global financial markets.
 
 # European impact of the epidemic
 
-Expliquer pourquoi l'analyse localisée, quels pays, etc
+We decided to study the spread of the virus in Europe, focusing in particular on France, Italy, Spain and Germany. We made this choice because the first three countries were severely affected by Covid-19 (also including the United Kingdom), then Germany was chosen for this study because this country was able to limit the impact of the epidemic on its population. We will therefore try to understand how the epidemic was contained by these different countries, the means put in place and their effectiveness.
 
 ```{r include=FALSE}
 coronavirus <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
@@ -457,7 +467,7 @@ CombineGraph <-ggplot(CombineCountries, aes(date, cases))
 CombineGraph2 <- CombineGraph + geom_bar(stat = "identity", aes(colour = type)) +
   facet_wrap(~ Country.Region) +
   xlab("Date") + 
-  ggtitle("Cas de coronavirus") +
+  ggtitle("Coronavirus cases") +
   theme_linedraw()
 
 CombineGraph3 <- CombineGraph2 + theme(axis.title.y = element_blank()) 
@@ -466,7 +476,22 @@ CombineGraph3 <- ggplotly(CombineGraph3)
 CombineGraph3 
 ```
 
-Analyse à faire
+This graph is interactive, so you can move your cursor over it to see the evolution of the epidemic for a country.
+
+To analyse the epidemic peak in each country, we use the number of new deaths each day. Because countries do not currently have the capacity to test all of their citizens, the numbers of confirmed cases can be misleading as to when the epidemic peak occurs. For example, if tomorrow a country has the capacity to test all of its citizens in one week, the number of new cases of coronavirus detected will increase dramatically, but this does not mean that there is a new epidemic wave. Many people are infected with the virus without having symptoms, and some people with symptoms may not be tested because of a lack of testing capacity in the countries concerned.
+
+This analysis represents the number of new confirmed cases / deaths / treated per day. 
+
+So we can see that the epidemic started to slow down in France from mid-April, the lockdown in France was implemented on March 17th, so it took a month for the trend to be down in France. Containment seems therefore to have been effective in slowing down the epidemic, however, France is lagging behind in terms of the medical tests carried out to detect Covid-19 contamination. Thus, the number of confirmed cases in France is automatically underestimated.
+
+As far as Italy is concerned, the lockdown was put in place on 9 March, one week before France. The epidemic peak was passed at the beginning of April, two weeks before France. This discrepancy can be partly explained by the much more active circulation of the virus in Italy at the end of February / beginning of March, so a large part of the population had been contaminated before the start of containment.
+
+Spain began its lockdown on 15 March, two days before France and one week after Italy. The peak of the epidemic was reached in mid-April (as in France). 
+
+Germany went into containment on 22 March, five days after France, one week after Spain and two weeks after Italy. However, it is the country that has been the most successful in containing this epidemic, because, according to the number of deaths, Germany has been much more spared by this crisis. What is the reason for this? 
+Germany had the opportunity to test several hundred thousand citizens per week, so it was able to quickly identify those who were carrying the virus and invite them to stay at home or to be treated according to the symptoms they developed. This massive screening campaign seems to have been the key to Germany's "success" compared to its European neighbours who were hit much harder by the epidemic. Added to this is Germany's medical capacity and the number of intensive care beds available. Germany did not experience hospital overcrowding as France, Italy or Spain did.
+Germany therefore seemed much more prepared to deal with a health crisis of this magnitude.
+
 
 ```{r include=FALSE}
 DataCountries <- CombineCountries %>% group_by(Country.Region, type) %>%
