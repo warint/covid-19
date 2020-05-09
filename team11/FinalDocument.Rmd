@@ -43,6 +43,7 @@ library(gganimate)
 library(rtweet)
 library(tidytext)
 library(lubridate)
+library(rdbnomics)
 ```
 
 <style>
@@ -544,7 +545,7 @@ SpreadCountries <- filter(summary_df2, Country.Region == "France" & Province.Sta
 SpreadCountries1 <- SpreadCountries[,-1]
 ```
 
-## Comparative analysis of cumulative confirmed cases
+## Comparative analysis of cumulative cases
 
 ```{r include=FALSE}
 CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulativeConfirmed=cumsum(confirmed))
@@ -560,8 +561,6 @@ ggplot(CountriesConfirmed) +
 ```
 
 On this graph, we can clearly see that Italy was the first country to see the epidemic spread, followed by Spain and then Germany and France. Regarding France, it is important to note that its low screening capacity may have contributed to "distorting" the results. It is therefore likely that the virus circulated at an earlier date than that shown on the graph.
-
-## Comparative analysis of cumulative death cases
 
 ```{r include=FALSE}
 CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulativeDeath=cumsum(death))
@@ -580,8 +579,6 @@ This graph is the most "interesting" because the figures given are true to reali
 
 Here we can clearly see that Germany has succeeded in better protecting its population, in particular by screening on a massive scale. As regards the other three countries, we can see that the death curve "flattened out" during the month of April. It remains to be seen whether the end of containment will not lead to a return to an upward trend in these curves.
 If this were to be the case, we would then normally see a resumption of the sharp rise in these curves from mid-June onwards (i.e. approximately one month after the end of the lockdown of the countries concerned).
-
-## Comparative analysis of all cumulated case types
 
 ```{r include=FALSE}
 LeftJoin1 <- left_join(CountriesConfirmed, CountriesDeath, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
@@ -618,7 +615,105 @@ CombineCumul3 <- ggplotly(CombineCumul3)
 CombineCumul3 ## graph interactif sur les effectifs cumulés
 ```
 
-Analyse à faire 
+This interactive graph shows all the previous data on a single graph. Thus, you can move the cursor on the histogram to follow the evolution of cumulative cases according to type (confirmed, death, recovered).
+
+## Health System Comparisons
+
+```{r include=FALSE}
+HospitalEmployment <- rdb(ids = c('Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.IT', "Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.FR", "Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.ES", "Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.DE")) %>%
+  filter(!is.na(value)) # Annual – Hospital employment – Head count per hundred thousand inhabitants
+```
+
+```{r include=FALSE}
+HospitalEmployment2017 <- filter(HospitalEmployment, original_period == 2017)
+```
+
+```{r include=FALSE}
+base::colnames(HospitalEmployment2017)[colnames(HospitalEmployment2017)=="Geopolitical entity (reporting)"] <- "Country" 
+```
+
+```{r include=FALSE}
+HospitalEmployment2017$Country <- recode(HospitalEmployment2017$Country,
+               "Germany (until 1990 former territory of the FRG)" = "Germany")
+```
+
+```{r echo=FALSE, fig.align="center"}
+ggplot(HospitalEmployment2017) +
+ aes(x = Country, y = value, fill = Country, label = value) +
+ geom_col() +
+  geom_text(nudge_y = 1) +
+ scale_fill_hue() +
+ labs(x = "Country", y = "Ratio for 100.000 inhabitants", title = "Number of employees in hospitals per 100,000 inhabitants", caption = "Source : Eurostat (2017)") +
+ ggthemes::theme_stata() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Analyse à faire
+
+```{r include=FALSE}
+HospitalBeds <- rdb(ids = c('Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.FR', "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.IT", "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.ES", "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.DE")) %>%
+  filter(!is.na(value)) # Annual – Per hundred thousand inhabitants – Curative care beds in hospitals 
+```
+
+```{r include=FALSE}
+HospitalBeds2017 <- filter(HospitalBeds, original_period == 2017)
+```
+
+```{r include=FALSE}
+base::colnames(HospitalBeds2017)[colnames(HospitalBeds2017)=="Geopolitical entity (reporting)"] <- "Country" 
+```
+
+```{r include=FALSE}
+HospitalBeds2017$Country <- recode(HospitalBeds2017$Country,
+               "Germany (until 1990 former territory of the FRG)" = "Germany")
+```
+
+```{r echo=FALSE, fig.align="center"}
+ggplot(HospitalBeds2017) +
+ aes(x = Country, y = value, fill = Country, label = value) +
+ geom_col() +
+  geom_text(nudge_y = 1) +
+ labs(y = "Ratio for 100.000 inhabitants", x = "Country", title = "Hospital beds in intensive care per 100.000 inhabitants", caption = "Source : Eurostat (2017)") +
+ ggthemes::theme_stata() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+Analyse à faire
+
+## Comparison of population at risk
+
+```{r include=FALSE}
+TotalPop <- rdb(ids = c('Eurostat/tps00001/A.JAN.FR', "Eurostat/tps00001/A.JAN.IT", "Eurostat/tps00001/A.JAN.ES", "Eurostat/tps00001/A.JAN.DE")) %>%
+  filter(!is.na(value)) # Population totale
+```
+
+```{r include=FALSE}
+TotalPop2019 <- filter(TotalPop, original_period == 2019)
+```
+
+```{r include=FALSE}
+Pop65andMore <- rdb(ids = c('Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.FR', "Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.IT", "Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.ES", "Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.DE")) %>%
+  filter(!is.na(value)) # 65 ans ou plus 
+```
+
+```{r include=FALSE}
+Pop65andMore2019 <- filter(Pop65andMore, original_period == 2019)
+```
+
+```{r include=FALSE}
+Country <- c("France", "Italy", "Spain", "Germany")
+Ratio <- Pop65andMore2019$value/TotalPop2019$value*100
+TableauRatioPop <- data.frame(Country, Ratio) # Ratio 65 ans ou +
+colnames(TableauRatioPop)[2] <- "Population over 65 years old ratio"
+```
+
+```{r echo=FALSE, fig.align="center"}
+TableauRatioPop %>% 
+kable() %>%
+  kable_styling()
+```
+
+Analyse à faire
 
 # French impact of the epidemic
 
