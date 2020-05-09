@@ -480,17 +480,19 @@ This graph is interactive, so you can move your cursor over it to see the evolut
 
 To analyse the epidemic peak in each country, we use the number of new deaths each day. Because countries do not currently have the capacity to test all of their citizens, the numbers of confirmed cases can be misleading as to when the epidemic peak occurs. For example, if tomorrow a country has the capacity to test all of its citizens in one week, the number of new cases of coronavirus detected will increase dramatically, but this does not mean that there is a new epidemic wave. Many people are infected with the virus without having symptoms, and some people with symptoms may not be tested because of a lack of testing capacity in the countries concerned.
 
-This analysis represents the number of new confirmed cases / deaths / treated per day. 
+This analysis represents the number of new confirmed cases / deaths / recovered per day. 
 
 So we can see that the epidemic started to slow down in France from mid-April, the lockdown in France was implemented on March 17th, so it took a month for the trend to be down in France. Containment seems therefore to have been effective in slowing down the epidemic, however, France is lagging behind in terms of the medical tests carried out to detect Covid-19 contamination. Thus, the number of confirmed cases in France is automatically underestimated.
 
 As far as Italy is concerned, the lockdown was put in place on 9 March, one week before France. The epidemic peak was passed at the beginning of April, two weeks before France. This discrepancy can be partly explained by the much more active circulation of the virus in Italy at the end of February / beginning of March, so a large part of the population had been contaminated before the start of containment.
 
-Spain began its lockdown on 15 March, two days before France and one week after Italy. The peak of the epidemic was reached in mid-April (as in France). 
+Spain began its lockdown on 15 March, two days before France and one week after Italy. Spain experienced its first epidemic peak at the beginning of April, then the trend was downward and a new peak occurred around mid-April.
 
 Germany went into containment on 22 March, five days after France, one week after Spain and two weeks after Italy. However, it is the country that has been the most successful in containing this epidemic, because, according to the number of deaths, Germany has been much more spared by this crisis. What is the reason for this? 
 Germany had the opportunity to test several hundred thousand citizens per week, so it was able to quickly identify those who were carrying the virus and invite them to stay at home or to be treated according to the symptoms they developed. This massive screening campaign seems to have been the key to Germany's "success" compared to its European neighbours who were hit much harder by the epidemic. Added to this is Germany's medical capacity and the number of intensive care beds available. Germany did not experience hospital overcrowding as France, Italy or Spain did.
 Germany therefore seemed much more prepared to deal with a health crisis of this magnitude.
+
+Finally, it is important to take into account that European countries are gradually starting to come out of containment, so it is likely that the epidemic will increase again in the coming weeks/months. This will depend in part on the behaviour of the population and the respect of the rules of distancing.
 
 
 ```{r include=FALSE}
@@ -526,7 +528,9 @@ kable(DataCountries2) %>%
   row_spec(4, bold = T, color = "white", background = "orange") 
 ```
 
-Analyse à faire (ratios, nombre total confirmés)
+This comparative table shows the number of Covid-19 cases as of 10 May 2020, we can see that France, Italy and Spain have very high mortality ratios (more than 10%). The average lethality of Covid-19 has been defined at around 2% by many health agencies. This very high rate can be explained by the lack of testing on the part of the 3 countries concerned, in fact, not having the possibility of testing all citizens, there are many more contaminated than those currently counted, so this automatically raises the mortality ratio for these countries. 
+We also note that Germany is the country that is doing best in terms of the number of deaths (less than 10,000 while its European neighbours are at more than 25,000 deaths!).
+The indicator of people cared for is not really relevant because countries do not systematically count cured people. This can be explained by the fact that some people have weak symptoms and stay at home as long as these symptoms pass, so they are not counted in the treated persons.
 
 ```{r include=FALSE}
 summary_df2 <- spread(coronavirus, "type", "cases")
@@ -543,43 +547,46 @@ SpreadCountries1 <- SpreadCountries[,-1]
 ## Comparative analysis of cumulative confirmed cases
 
 ```{r include=FALSE}
-CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulConfirmes=cumsum(confirmed))
+CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulativeConfirmed=cumsum(confirmed))
 ```
 
 ```{r echo=FALSE, fig.align="center"}
 ggplot(CountriesConfirmed) +
- aes(x = date, y = CumulConfirmes, colour = Country.Region) +
+ aes(x = date, y = CumulativeConfirmed, colour = Country.Region) +
  geom_line(size = 1L) +
  scale_color_hue() +
- labs(y = "Nombre de cas confirmés (cumulés)", title = "Nombre de personnes infectées par le Covid-19") +
+ labs(y = "Number of confirmed cases (cumulative)", title = "Number of people infected with Covid-19", caption = "Coronavirus API / Rami Krispin") +
  ggthemes::theme_stata() ## graphique cumulatif des cas confirmés de Covid-19 
 ```
 
-Analyse à faire
+On this graph, we can clearly see that Italy was the first country to see the epidemic spread, followed by Spain and then Germany and France. Regarding France, it is important to note that its low screening capacity may have contributed to "distorting" the results. It is therefore likely that the virus circulated at an earlier date than that shown on the graph.
 
-## Comparative analysis of the number of cumulative death cases
+## Comparative analysis of cumulative death cases
 
 ```{r include=FALSE}
-CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulMort=cumsum(death))
+CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulativeDeath=cumsum(death))
 ```
 
 ```{r echo=FALSE, fig.align="center"}
 ggplot(CountriesDeath) +
- aes(x = date, y = CumulMort, colour = Country.Region) +
+ aes(x = date, y = CumulativeDeath, colour = Country.Region) +
  geom_line(size = 1L) +
  scale_color_hue() +
- labs(y = "Nombre de décès (cumulés)", title = "Décès liés au Covid-19") +
+ labs(y = "Number of death cases (cumulative)", title = "Deaths related to Covid-19", caption = "Coronavirus API / Rami Krispin") +
  ggthemes::theme_stata() ## graphique cumulatif des cas de décés dû au Covid-19 
 ```
 
-Analyse à faire
+This graph is the most "interesting" because the figures given are true to reality. I.e. the number of deaths is relatively well documented by these countries. Indeed, although the figures related to the number of contaminated people are underestimated due to the lack of available screening tests, the figures of deaths recorded in relation to Covid-19 are reliable.
+
+Here we can clearly see that Germany has succeeded in better protecting its population, in particular by screening on a massive scale. As regards the other three countries, we can see that the death curve "flattened out" during the month of April. It remains to be seen whether the end of containment will not lead to a return to an upward trend in these curves.
+If this were to be the case, we would then normally see a resumption of the sharp rise in these curves from mid-June onwards (i.e. approximately one month after the end of the lockdown of the countries concerned).
 
 ## Comparative analysis of all cumulated case types
 
 ```{r include=FALSE}
 LeftJoin1 <- left_join(CountriesConfirmed, CountriesDeath, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
 
-CountriesRecovered <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulSoigne=cumsum(recovered))
+CountriesRecovered <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulativeRecovered=cumsum(recovered))
 
 LeftJoin2 <- left_join(LeftJoin1, CountriesRecovered, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
 
@@ -589,24 +596,12 @@ LeftJoin2$recovered <- NULL
 LeftJoin2$Lat <- NULL
 LeftJoin2$Long <- NULL
 
-LeftJoin2$CumulConfirmes <- as.numeric(LeftJoin2$CumulConfirmes)
-LeftJoin2$CumulMort <- as.numeric(LeftJoin2$CumulMort)
-LeftJoin2$CumulSoigne <- as.numeric(LeftJoin2$CumulSoigne)
+LeftJoin2$CumulativeConfirmed <- as.numeric(LeftJoin2$CumulativeConfirmed)
+LeftJoin2$CumulativeDeath <- as.numeric(LeftJoin2$CumulativeDeath)
+LeftJoin2$CumulativeRecovered <- as.numeric(LeftJoin2$CumulativeRecovered)
 
 FinalCumul <- LeftJoin2 %>% gather(Total, Value, -Country.Region, -date)
 ```
-
-```{r echo=FALSE, fig.align="center"}
-ggplot(FinalCumul) +
- aes(x = date, y = Value, colour = Country.Region, group = Country.Region) +
- geom_line(size = 1L) +
- scale_color_hue() +
- labs(y = "Effectifs cumulés (par catégorie)", title = "Graphique de l'évolution du Covid-19") +
- ggthemes::theme_stata() +
- facet_wrap(vars(Total), scales = "free") ## à voir si on peut pas faire un graph plus parlant
-```
-
-Analyse à faire (axer sur le ralentissement de l'épidémie)
 
 ```{r echo=FALSE, fig.align="center"}
 CombineCumul <-ggplot(FinalCumul, aes(date, Value))
@@ -614,7 +609,7 @@ CombineCumul <-ggplot(FinalCumul, aes(date, Value))
 CombineCumul2 <- CombineCumul + geom_bar(stat = "identity", aes(colour = Total)) +
   facet_wrap(~ Country.Region) +
   xlab("Date") + 
-  ggtitle("Effectifs cumulés par catégorie de l'évolution du Covid-19") +
+  ggtitle("Cumulative headcount by category (Covid-19)") +
   theme_linedraw()
 
 CombineCumul3 <- CombineCumul2 + theme(axis.title.y = element_blank()) 
