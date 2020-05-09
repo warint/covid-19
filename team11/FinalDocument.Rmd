@@ -12,6 +12,12 @@ output:
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+In the context of the global health crisis related to Covid-19, the SKEMA Global Lab in AI gave us the opportunity to study the impacts of this crisis on our world. First of all, we would like to thank the entire SKEMA Global Lab in AI team, who provided us with all the knowledge to master the different tools (and in particular Rstudio) essential to study the data on a large scale. We would also like to thank Mr Rami KRISPIN, who made his API available, without which we would not have been able to complete this project.
+
+Within the framework of our study, our team decided to first study the spread of the virus on a global scale as well as its financial consequences on the markets. In a second step, we focused on the spread of the virus within Europe, the policies implemented and their results to stop the spread of the virus. Finally, we decided to deepen the analysis on the impact of the virus in France, especially on the different industries but also on the feelings of the French people through a sentiment analysis using the Twitter API.
+
+Our code to generate this document is available [here](https://github.com/warint/covid-19/blob/master/team11/FinalDocument.Rmd).
+
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(dplyr) 
 library(tidyr)
