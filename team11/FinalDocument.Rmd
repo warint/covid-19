@@ -1,0 +1,819 @@
+---
+title: "Hacking Health Covid - Team 11"
+author: "Valentin Henriot / Florian Colin / Gabin Coutand"
+date: "08/05/2020"
+output:
+  html_document: 
+    toc: yes
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+<style>
+body {
+text-align: justify}
+</style>
+
+In the context of the global health crisis related to Covid-19, the SKEMA Global Lab in AI gave us the opportunity to study the impacts of this crisis on our world. First of all, we would like to thank the entire SKEMA Global Lab in AI team, who provided us with all the knowledge to master the different tools (and in particular Rstudio) essential to study the data on a large scale. We would also like to thank Mr Rami KRISPIN, who made his API available, without which we would not have been able to complete this project.
+
+Within the framework of our study, our team decided to first study the spread of the virus on a global scale as well as its financial consequences on the markets. In a second step, we focused on the spread of the virus within Europe, the policies implemented and their results to stop the spread of the virus. Finally, we decided to deepen the analysis on the impact of the virus in France, especially on the different industries but also on the feelings of the French people through a sentiment analysis using the Twitter API.
+
+**Our code to generate this document is available [here](https://github.com/warint/covid-19/blob/master/team11/FinalDocument.Rmd).**
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+library(dplyr) 
+library(tidyr)
+library(leaflet)
+library(leaflet.extras)
+library(leaftime)
+library(purrr)
+library(leafpop)
+library(ggplot2)
+library(plotly)
+library(kableExtra)
+library(readr)
+library(readxl)
+library(dplyr)
+library(rAmCharts)
+library(lubridate)
+library(gganimate)
+library(rtweet)
+library(tidytext)
+library(lubridate)
+library(rdbnomics)
+```
+
+<style>
+.html-widget {
+    margin: auto;
+}
+</style>
+
+```{r include=FALSE}
+CoronavirusWorld <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
+
+CoronavirusWorld[CoronavirusWorld == "" ] <- NA
+```
+
+```{r include=FALSE}
+CoronavirusWorld$name <- ifelse(is.na(CoronavirusWorld$Province.State) == TRUE, 
+                                paste0(CoronavirusWorld$Country.Region), paste0(CoronavirusWorld$Province.State))
+```
+
+```{r include=FALSE}
+CoronavirusWorld$date <- as.Date(CoronavirusWorld$date)
+```
+
+```{r include=FALSE}
+CoronavirusWorld2 <- spread(CoronavirusWorld, "type", "cases")
+
+WorldSpreadCovid <- CoronavirusWorld2 %>% group_by(name) %>% mutate(CumulConfirmes=cumsum(confirmed)) %>% mutate(CumulMorts=cumsum(death)) %>% mutate(CumulSoignes=cumsum(recovered))
+```
+
+```{r include=FALSE}
+WorldSpreadCovid$category1 <- ifelse(
+  WorldSpreadCovid$CumulConfirmes >= -1 &
+    WorldSpreadCovid$CumulConfirmes <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulConfirmes >= 1 &
+      WorldSpreadCovid$CumulConfirmes <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulConfirmes >= 101 &
+        WorldSpreadCovid$CumulConfirmes <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulConfirmes >= 1001 &
+          WorldSpreadCovid$CumulConfirmes <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulConfirmes >= 3001 &
+            WorldSpreadCovid$CumulConfirmes <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulConfirmes >= 5001 &
+              WorldSpreadCovid$CumulConfirmes <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulConfirmes >= 10001 &
+                WorldSpreadCovid$CumulConfirmes <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulConfirmes >= 20001 &
+                  WorldSpreadCovid$CumulConfirmes <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulConfirmes >= 50001 &
+                    WorldSpreadCovid$CumulConfirmes <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulConfirmes >= 100001 &
+                      WorldSpreadCovid$CumulConfirmes <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulConfirmes >= 200001 &
+                        WorldSpreadCovid$CumulConfirmes <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r include=FALSE}
+WorldSpreadCovid$category2 <- ifelse(
+  WorldSpreadCovid$CumulMorts >= -1 &
+    WorldSpreadCovid$CumulMorts <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulMorts >= 1 &
+      WorldSpreadCovid$CumulMorts <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulMorts >= 101 &
+        WorldSpreadCovid$CumulMorts <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulMorts >= 1001 &
+          WorldSpreadCovid$CumulMorts <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulMorts >= 3001 &
+            WorldSpreadCovid$CumulMorts <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulMorts >= 5001 &
+              WorldSpreadCovid$CumulMorts <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulMorts >= 10001 &
+                WorldSpreadCovid$CumulMorts <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulMorts >= 20001 &
+                  WorldSpreadCovid$CumulMorts <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulMorts >= 50001 &
+                    WorldSpreadCovid$CumulMorts <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulMorts >= 100001 &
+                      WorldSpreadCovid$CumulMorts <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulMorts >= 200001 &
+                        WorldSpreadCovid$CumulMorts <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r include=FALSE}
+WorldSpreadCovid$category3 <- ifelse(
+  WorldSpreadCovid$CumulSoignes >= -1 &
+    WorldSpreadCovid$CumulSoignes <= 0,
+  0,
+  ifelse(
+    WorldSpreadCovid$CumulSoignes >= 1 &
+      WorldSpreadCovid$CumulSoignes <= 100,
+    1,
+    ifelse(
+      WorldSpreadCovid$CumulSoignes >= 101 &
+        WorldSpreadCovid$CumulSoignes <= 1000,
+      2,
+      ifelse(
+        WorldSpreadCovid$CumulSoignes >= 1001 &
+          WorldSpreadCovid$CumulSoignes <= 3000,
+        4,
+        ifelse(
+          WorldSpreadCovid$CumulSoignes >= 3001 &
+            WorldSpreadCovid$CumulSoignes <= 5000,
+          5,
+          ifelse(
+            WorldSpreadCovid$CumulSoignes >= 5001 &
+              WorldSpreadCovid$CumulSoignes <= 10000,
+            8,
+            ifelse(
+              WorldSpreadCovid$CumulSoignes >= 10001 &
+                WorldSpreadCovid$CumulSoignes <= 20000,
+              10,
+              ifelse(
+                WorldSpreadCovid$CumulSoignes >= 20001 &
+                  WorldSpreadCovid$CumulSoignes <= 50000,
+                15,
+                ifelse(
+                  WorldSpreadCovid$CumulSoignes >= 50001 &
+                    WorldSpreadCovid$CumulSoignes <= 100000,
+                  20,
+                  ifelse(
+                    WorldSpreadCovid$CumulSoignes >= 100001 &
+                      WorldSpreadCovid$CumulSoignes <= 200000,
+                    25,
+                    ifelse(
+                      WorldSpreadCovid$CumulSoignes >= 200001 &
+                        WorldSpreadCovid$CumulSoignes <= Inf,
+                      30,
+                      35
+                    )
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  )
+)
+```
+
+```{r include=FALSE}
+WorldMapCovid <- filter(WorldSpreadCovid, date == max(date))
+```
+
+# **Global impact of the epidemic**
+
+## World Map Covid-19
+
+```{r echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+content <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", "<strong>", WorldMapCovid$CumulConfirmes, "Confirmed", "</strong>", "<br/>", WorldMapCovid$CumulMorts, "Death", "<br/>", WorldMapCovid$CumulSoignes, "Recovered")
+
+content2 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmed", "<br/>", "<strong>", WorldMapCovid$CumulMorts, "Death", "</strong>", "<br/>", WorldMapCovid$CumulSoignes, "Recovered")
+ 
+content3 <- paste("<strong>", WorldMapCovid$name, "</strong>", "<br/>", WorldMapCovid$CumulConfirmes, "Confirmed", "<br/>", WorldMapCovid$CumulMorts, "Death", "<br/>", "<strong>", WorldMapCovid$CumulSoignes, "Recovered", "</strong>")
+
+leaflet(WorldMapCovid) %>%
+  addFullscreenControl() %>%
+  addProviderTiles(providers$CartoDB.DarkMatter) %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category1) * 5,
+    popup = content,
+    color = "orange",
+    stroke = FALSE,
+    fillOpacity = 0.6,
+    group = "Confirmed"
+  )  %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category3) * 5,
+    popup = content3,
+    color = "green",
+    stroke = FALSE,
+    fillOpacity = 1,
+    group = "Recovered"
+  ) %>%
+  addCircleMarkers(
+    radius = ~ sqrt(category2) * 5,
+    popup = content2,
+    color = "red",
+    stroke = FALSE,
+    fillOpacity = 1,
+    group = "Death") %>%
+  addLayersControl(
+    overlayGroups = c("Confirmed", "Recovered", "Death"),
+    options = layersControlOptions(collapsed = FALSE),
+    position = 'topright'
+  )
+```
+
+It is an interactive map generated through the library (leaflet). This map shows for each country, the number of Covid-19 cases, the number of deaths related to the epidemic and the number of people treated. This map is dated 10 May 2020 (it has evolved since then).
+We can easily see that the two "cradles" of the epidemic are currently in Europe and the United States. These are the two regions of the world where the virus has been circulating most actively and where there have been the most coronavirus-related deaths. However, one must be cautious with this information, especially on the number of confirmed cases, because some countries (including France) do not have the material means to test their entire population, so the number of confirmed cases is underestimated.
+
+You can click on the different options at the top right of the map to choose the information you wish to display. You can also click on a country to see the detailed numbers for that country.
+
+## Coronavirus epidemic evolution around the world
+
+```{r eval=FALSE, include=FALSE}
+summary_df2
+
+summary_df2$Province.State[summary_df2$Province.State == "" ] <- NA
+
+summary_df2$name <- ifelse(is.na(summary_df2$Province.State) == TRUE, 
+                                paste0(summary_df2$Country.Region), paste0(summary_df2$Province.State))
+```
+
+```{r eval=FALSE, include=FALSE}
+PlotCumsumConfirmed <- summary_df2 %>% group_by(name) %>% mutate(CumulConfirmes=cumsum(confirmed))
+
+PlotCumsumConfirmed$CumulConfirmes <- as.numeric(PlotCumsumConfirmed$CumulConfirmes)
+
+PlotCumsumDeath <- summary_df2 %>% group_by(name) %>% 
+mutate(CumulMorts=cumsum(death))
+
+PlotCumsumDeath$CumulMorts <- as.numeric(PlotCumsumDeath$CumulMorts)
+```
+
+```{r eval=FALSE, include=FALSE}
+Plot_formatted <- PlotCumsumConfirmed %>%
+  mutate(date = ymd(date)) %>%
+  group_by(date) %>%
+  mutate(rank = rank(-CumulConfirmes),
+         Value_rel = CumulConfirmes/CumulConfirmes[rank==1],
+         Value_lbl = paste0(" ",round(CumulConfirmes))) %>%
+  group_by(name) %>% 
+  filter(rank <=10) %>%
+  ungroup()
+```
+
+```{r eval=FALSE, include=FALSE}
+StaticPlotCovid = ggplot(Plot_formatted, aes(rank, group = name, 
+                fill = as.factor(name), color = as.factor(name))) +
+  geom_tile(aes(y = CumulConfirmes/2,
+                height = CumulConfirmes,
+                width = 0.9), alpha = 0.8, color = NA) +
+  geom_text(aes(y = 0, label = paste(name, " ")), vjust = 0.2, hjust = 1) +
+  geom_text(aes(y=CumulConfirmes, label = Value_lbl, hjust=0)) +
+  coord_flip(clip = "off", expand = FALSE) +
+  scale_y_continuous(labels = scales::comma) +
+  scale_x_reverse() +
+  guides(color = FALSE, fill = FALSE) +
+  theme(axis.line=element_blank(),
+        axis.text.x=element_blank(),
+        axis.text.y=element_blank(),
+        axis.ticks=element_blank(),
+        axis.title.x=element_blank(),
+         axis.title.y=element_blank(),
+        legend.position="none",
+        panel.background=element_blank(),
+        panel.border=element_blank(),
+        panel.grid.major=element_blank(),
+        panel.grid.minor=element_blank(),
+        panel.grid.major.x = element_line( size=.1, color="grey" ),
+        panel.grid.minor.x = element_line( size=.1, color="grey" ),
+        plot.title=element_text(size=25, hjust=0.5, face="bold", colour="grey", vjust=-1),
+        plot.subtitle=element_text(size=18, hjust=0.5, face="italic", color="grey"),
+        plot.caption =element_text(size=8, hjust=0.5, face="italic", color="grey"),
+        plot.background=element_blank(),
+       plot.margin = margin(2,2, 2, 4, "cm"))
+```
+
+```{r eval=FALSE, include=FALSE}
+library(gganimate)
+
+anim = StaticPlotCovid + transition_states(date, transition_length = 4, state_length = 1) +
+  view_follow(fixed_x = TRUE)  +
+  labs(title = 'Évolution du nombre de cas de Covid 19 par pays : {closest_state}',  
+       subtitle  =  "10 premiers pays / régions",
+       caption  = "Nombre de cas confirmés | Data Source: Rami Krispin/coronavirus")
+```
+
+```{r eval=FALSE, include=FALSE}
+animate(anim, 1000, fps = 15,  width = 1200, height = 1000, 
+        renderer = gifski_renderer("gganimcovid.gif"))
+```
+
+![This gif shows the day by day evolution of the epidemic, it thus highlights the beginning of the spread in China, then in Europe and finally in the United States. The data generated stops on May 7, 2020, and has therefore evolved since then.](gganimcovid.gif)
+
+## Stock market performance
+
+We chose two financial markets for this study and decided to study the period preceding the coronavirus crisis in the countries concerned, the aim being to demonstrate the anticipation of the markets but also the problems linked to the interdependence of all developed countries when a major crisis occurs.
+
+### CAC 40 market
+
+```{r echo=FALSE, fig.align="center"}
+CAC40 <- read_xlsx("PX1-3.xlsx")
+
+CAC40$date <- as.Date(CAC40$date)
+
+ggplot(CAC40) +
+ aes(x = date, y = cloture) +
+ geom_line(size = 0.78) +
+ scale_color_hue() +
+ labs(x = "Date", y = "Closing value", title = "Evolution of the stock market index CAC 40", subtitle = "Since January 2020") +
+ hrbrthemes::theme_modern_rc()
+```
+
+The beginning of the containment took place on March 17 in France, we can see however that the CAC 40 market had fallen by more than 500 points before the end of February. This is explained by the fall of financial markets worldwide, indeed, China, which is the main exporting country of the planet was totally paralyzed by the Covid-19 pandemic, so, by domino effect, the fall of Chinese exports made all the markets collapse. This crisis has highlighted the "limits" of globalization and the interconnection between the different countries of the world. Indeed, when a country "falls", it risks dragging all of its partners with it. This interdependence therefore needs to be reviewed in order to avoid having to face this type of situation again in the future. A parallel can be drawn with the subprime crisis that originated in the United States and led to a global economic crisis.
+
+### S&P 500 market
+
+```{r echo=FALSE, fig.align="center"}
+SP500 <- read_xlsx("SPX.xlsx")
+
+SP500$date <- as.Date(SP500$date) #mettre la colonne date sous le bon format
+SP500 <- dplyr::rename(SP500, cloture = fermeture)
+
+ggplot(SP500) +
+ aes(x = date, y = cloture) +
+ geom_line(size = 0.78, colour = "#0c4c8a") +
+ labs(x = "Date", y = "Closing value", title = "Evolution of the stock market index S&P 500", subtitle = "Since February 2020") +
+ hrbrthemes::theme_modern_rc()
+
+```
+
+Concerning the S&P 500, the same conclusion can be drawn from this crisis, indeed, the coronavirus crisis arrived in the United States in mid-March but the financial markets started to collapse long before. This collapse is due in part to the anticipation of the markets, but more importantly to the interconnection of the various global financial markets.
+
+# **European impact of the epidemic**
+
+We decided to study the spread of the virus in Europe, focusing in particular on France, Italy, Spain and Germany. We made this choice because the first three countries were severely affected by Covid-19 (also including the United Kingdom), then Germany was chosen for this study because this country was able to limit the impact of the epidemic on its population. We will therefore try to understand how the epidemic was contained by these different countries, the means put in place and their effectiveness.
+
+```{r include=FALSE}
+coronavirus <- utils::read.csv("https://raw.githubusercontent.com/RamiKrispin/coronavirus-csv/master/coronavirus_dataset.csv")
+```
+
+```{r include=FALSE}
+summary_df <- coronavirus %>% group_by(Country.Region, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(-total_cases)
+
+summary_df %>% head(20)
+```
+
+```{r include=FALSE}
+coronavirus$date <- as.Date(coronavirus$date, "%Y-%m-%d")
+```
+
+```{r include=FALSE}
+coronavirus %>% 
+  filter(date == max(date)) %>%
+  select(country = Country.Region, type, cases) %>%
+  group_by(country, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  pivot_wider(names_from = type,
+              values_from = total_cases) %>%
+  arrange(-confirmed)
+```
+
+## Pooled analysis
+
+```{r include=FALSE}
+CombineCountries <- filter(coronavirus, Country.Region == "France" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy")
+```
+
+```{r echo=FALSE, fig.align="center"}
+CombineGraph <-ggplot(CombineCountries, aes(date, cases))
+
+CombineGraph2 <- CombineGraph + geom_bar(stat = "identity", aes(colour = type)) +
+  facet_wrap(~ Country.Region) +
+  xlab("Date") + 
+  ggtitle("Coronavirus cases") +
+  theme_linedraw()
+
+CombineGraph3 <- CombineGraph2 + theme(axis.title.y = element_blank()) 
+
+CombineGraph3 <- ggplotly(CombineGraph3)
+CombineGraph3 
+```
+
+This graph is interactive, so you can move your cursor over it to see the evolution of the epidemic for a country.
+
+To analyse the epidemic peak in each country, we use the number of new deaths each day. Because countries do not currently have the capacity to test all of their citizens, the numbers of confirmed cases can be misleading as to when the epidemic peak occurs. For example, if tomorrow a country has the capacity to test all of its citizens in one week, the number of new cases of coronavirus detected will increase dramatically, but this does not mean that there is a new epidemic wave. Many people are infected with the virus without having symptoms, and some people with symptoms may not be tested because of a lack of testing capacity in the countries concerned.
+
+This analysis represents the number of new confirmed cases / deaths / recovered per day. 
+
+So we can see that the epidemic started to slow down in France from mid-April, the lockdown in France was implemented on March 17th, so it took a month for the trend to be down in France. Containment seems therefore to have been effective in slowing down the epidemic, however, France is lagging behind in terms of the medical tests carried out to detect Covid-19 contamination. Thus, the number of confirmed cases in France is automatically underestimated.
+
+As far as Italy is concerned, the lockdown was put in place on 9 March, one week before France. The epidemic peak was passed at the beginning of April, two weeks before France. This discrepancy can be partly explained by the much more active circulation of the virus in Italy at the end of February / beginning of March, so a large part of the population had been contaminated before the start of containment.
+
+Spain began its lockdown on 15 March, two days before France and one week after Italy. Spain experienced its first epidemic peak at the beginning of April, then the trend was downward and a new peak occurred around mid-April.
+
+Germany went into containment on 22 March, five days after France, one week after Spain and two weeks after Italy. However, it is the country that has been the most successful in containing this epidemic, because, according to the number of deaths, Germany has been much more spared by this crisis. What is the reason for this? 
+Germany had the opportunity to test several hundred thousand citizens per week, so it was able to quickly identify those who were carrying the virus and invite them to stay at home or to be treated according to the symptoms they developed. This massive screening campaign seems to have been the key to Germany's "success" compared to its European neighbours who were hit much harder by the epidemic. Added to this is Germany's medical capacity and the number of intensive care beds available. Germany did not experience hospital overcrowding as France, Italy or Spain did.
+Germany therefore seemed much more prepared to deal with a health crisis of this magnitude.
+
+Finally, it is important to take into account that European countries are gradually starting to come out of containment, so it is likely that the epidemic will increase again in the coming weeks/months. This will depend in part on the behaviour of the population and the respect of the rules of distancing.
+
+
+```{r include=FALSE}
+DataCountries <- CombineCountries %>% group_by(Country.Region, type) %>%
+  summarise(total_cases = sum(cases)) %>%
+  arrange(Country.Region)
+```
+
+```{r include=FALSE}
+DataCountries2 <- spread(DataCountries, "type", "total_cases")
+```
+
+```{r include=FALSE}
+DataCountries2$confirmed <- as.numeric(DataCountries2$confirmed)
+DataCountries2$death <- as.numeric(DataCountries2$death)
+DataCountries2$recovered <- as.numeric(DataCountries2$recovered) 
+```
+
+```{r warning=FALSE, include=FALSE}
+DataCountries2$"Ratio death/confirmed" <- DataCountries2$death/DataCountries2$confirmed*100
+```
+
+## Comparative table
+
+```{r echo=FALSE, fig.align="center"}
+library(kableExtra)
+kable(DataCountries2) %>%
+  kable_styling("striped", full_width = F) %>%
+  column_spec(3, bold = T) %>%
+  row_spec(1, bold = T, color = "white", background = "blue") %>%
+  row_spec(2, bold = T, color = "white", background = "red") %>%
+  row_spec(3, bold = T, color = "white", background = "green") %>%
+  row_spec(4, bold = T, color = "white", background = "orange") 
+```
+
+This comparative table shows the number of Covid-19 cases as of 10 May 2020, we can see that France, Italy and Spain have very high mortality ratios (more than 10%). The average lethality of Covid-19 has been defined at around 2% by many health agencies. This very high rate can be explained by the lack of testing on the part of the 3 countries concerned, in fact, not having the possibility of testing all citizens, there are many more contaminated than those currently counted, so this automatically raises the mortality ratio for these countries. 
+We also note that Germany is the country that is doing best in terms of the number of deaths (less than 10,000 while its European neighbours are at more than 25,000 deaths!).
+The indicator of people cared for is not really relevant because countries do not systematically count cured people. This can be explained by the fact that some people have weak symptoms and stay at home as long as these symptoms pass, so they are not counted in the treated persons.
+
+```{r include=FALSE}
+summary_df2 <- spread(coronavirus, "type", "cases")
+```
+
+```{r include=FALSE}
+SpreadCountries <- filter(summary_df2, Country.Region == "France" & Province.State == "" | Country.Region == "Spain" | Country.Region == "Germany" | Country.Region == "Italy") 
+```
+
+```{r include=FALSE}
+SpreadCountries1 <- SpreadCountries[,-1]
+```
+
+## Comparative analysis of cumulative cases
+
+```{r include=FALSE}
+CountriesConfirmed <- SpreadCountries1 %>% group_by(Country.Region) %>% mutate(CumulativeConfirmed=cumsum(confirmed))
+```
+
+```{r echo=FALSE, fig.align="center"}
+ggplot(CountriesConfirmed) +
+ aes(x = date, y = CumulativeConfirmed, colour = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Number of confirmed cases (cumulative)", title = "Number of people infected with Covid-19", caption = "Coronavirus API / Rami Krispin") +
+ ggthemes::theme_stata() ## graphique cumulatif des cas confirmés de Covid-19 
+```
+
+On this graph, we can clearly see that Italy was the first country to see the epidemic spread, followed by Spain and then Germany and France. Regarding France, it is important to note that its low screening capacity may have contributed to "distorting" the results. It is therefore likely that the virus circulated at an earlier date than that shown on the graph.
+
+```{r include=FALSE}
+CountriesDeath <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulativeDeath=cumsum(death))
+```
+
+```{r echo=FALSE, fig.align="center"}
+ggplot(CountriesDeath) +
+ aes(x = date, y = CumulativeDeath, colour = Country.Region) +
+ geom_line(size = 1L) +
+ scale_color_hue() +
+ labs(y = "Number of death cases (cumulative)", title = "Deaths related to Covid-19", caption = "Coronavirus API / Rami Krispin") +
+ ggthemes::theme_stata() ## graphique cumulatif des cas de décés dû au Covid-19 
+```
+
+This graph is the most "interesting" because the figures given are true to reality. I.e. the number of deaths is relatively well documented by these countries. Indeed, although the figures related to the number of contaminated people are underestimated due to the lack of available screening tests, the figures of deaths recorded in relation to Covid-19 are reliable.
+
+Here we can clearly see that Germany has succeeded in better protecting its population, in particular by screening on a massive scale. As regards the other three countries, we can see that the death curve "flattened out" during the month of April. It remains to be seen whether the end of containment will not lead to a return to an upward trend in these curves.
+If this were to be the case, we would then normally see a resumption of the sharp rise in these curves from mid-June onwards (i.e. approximately one month after the end of the lockdown of the countries concerned).
+
+```{r include=FALSE}
+LeftJoin1 <- left_join(CountriesConfirmed, CountriesDeath, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
+
+CountriesRecovered <- SpreadCountries1 %>% group_by(Country.Region) %>%  mutate(CumulativeRecovered=cumsum(recovered))
+
+LeftJoin2 <- left_join(LeftJoin1, CountriesRecovered, by = c("Country.Region", "Lat", "Long", "date", "confirmed", "death", "recovered"))
+
+LeftJoin2$confirmed <- NULL
+LeftJoin2$death <- NULL
+LeftJoin2$recovered <- NULL
+LeftJoin2$Lat <- NULL
+LeftJoin2$Long <- NULL
+
+LeftJoin2$CumulativeConfirmed <- as.numeric(LeftJoin2$CumulativeConfirmed)
+LeftJoin2$CumulativeDeath <- as.numeric(LeftJoin2$CumulativeDeath)
+LeftJoin2$CumulativeRecovered <- as.numeric(LeftJoin2$CumulativeRecovered)
+
+FinalCumul <- LeftJoin2 %>% gather(Total, Value, -Country.Region, -date)
+```
+
+```{r echo=FALSE, fig.align="center"}
+CombineCumul <-ggplot(FinalCumul, aes(date, Value))
+
+CombineCumul2 <- CombineCumul + geom_bar(stat = "identity", aes(colour = Total)) +
+  facet_wrap(~ Country.Region) +
+  xlab("Date") + 
+  ggtitle("Cumulative headcount by category (Covid-19)") +
+  theme_linedraw()
+
+CombineCumul3 <- CombineCumul2 + theme(axis.title.y = element_blank()) 
+
+CombineCumul3 <- ggplotly(CombineCumul3)
+CombineCumul3 ## graph interactif sur les effectifs cumulés
+```
+
+This interactive graph shows all the previous data on a single graph. Thus, you can move the cursor on the histogram to follow the evolution of cumulative cases according to type (confirmed, death, recovered).
+
+## Health System Comparisons
+
+```{r include=FALSE}
+HospitalEmployment <- rdb(ids = c('Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.IT', "Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.FR", "Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.ES", "Eurostat/hlth_rs_prshp1/A.HOSP.HC_HTHAB.DE")) %>%
+  filter(!is.na(value)) # Annual – Hospital employment – Head count per hundred thousand inhabitants
+```
+
+```{r include=FALSE}
+HospitalEmployment2017 <- filter(HospitalEmployment, original_period == 2017)
+```
+
+```{r include=FALSE}
+base::colnames(HospitalEmployment2017)[colnames(HospitalEmployment2017)=="Geopolitical entity (reporting)"] <- "Country" 
+```
+
+```{r include=FALSE}
+HospitalEmployment2017$Country <- recode(HospitalEmployment2017$Country,
+               "Germany (until 1990 former territory of the FRG)" = "Germany")
+```
+
+```{r echo=FALSE, fig.align="center"}
+ggplot(HospitalEmployment2017) +
+ aes(x = Country, y = value, fill = Country, label = value) +
+ geom_col() +
+  geom_text(aes(label=value, colour=Country), 
+             position=position_dodge(width = 1), 
+             vjust=-0.10) +
+ scale_fill_hue() +
+ labs(x = "Country", y = "Ratio for 100.000 inhabitants", title = "Number of employees in hospitals per 100,000 inhabitants", caption = "Source : Eurostat (2017)") +
+ ggthemes::theme_stata() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+This graph represents the number of employees in hospitals per 100,000 inhabitants, we can see that in this field, France seems to be the most advanced country. However, we have to take into account the working week in each country to get a true picture. For example, in France the working week is set at 35 hours, whereas in Germany, Italy and Spain it is 40 hours. Consequently, France needs more employees in hospitals to do the same work as in other countries. Nevertheless, in this period of crisis, the number of employees in hospitals is important because it is a human resource that can be mobilized beyond the planned working week. Thus, France is doing better on this criterion and did not experience a shortage of labour in hospitals during the Covid-19 crisis. By way of comparison, Italy, for example, received the assistance of Cuban doctors at the beginning of the epidemic because they lacked doctors to care for all patients.
+
+```{r include=FALSE}
+HospitalBeds <- rdb(ids = c('Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.FR', "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.IT", "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.ES", "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.DE")) %>%
+  filter(!is.na(value)) # Annual – Per hundred thousand inhabitants – Curative care beds in hospitals 
+```
+
+```{r include=FALSE}
+HospitalBeds2017 <- filter(HospitalBeds, original_period == 2017)
+```
+
+```{r include=FALSE}
+base::colnames(HospitalBeds2017)[colnames(HospitalBeds2017)=="Geopolitical entity (reporting)"] <- "Country" 
+```
+
+```{r include=FALSE}
+HospitalBeds2017$Country <- recode(HospitalBeds2017$Country,
+               "Germany (until 1990 former territory of the FRG)" = "Germany")
+```
+
+```{r echo=FALSE, fig.align="center"}
+ggplot(HospitalBeds2017) +
+ aes(x = Country, y = value, fill = Country, label = value) +
+ geom_col() +
+  geom_text(aes(label=value, colour=Country), 
+             position=position_dodge(width = 1), 
+             vjust=-0.10) +
+ labs(y = "Ratio for 100.000 inhabitants", x = "Country", title = "Hospital beds in intensive care per 100.000 inhabitants", caption = "Source : Eurostat (2017)") +
+ ggthemes::theme_stata() +
+  theme(plot.title = element_text(hjust = 0.5))
+```
+
+This graph shows Germany's capacity to receive patients in intensive care units. If we compare with its European neighbors, we can see that Germany was much better equipped to deal with a violent outbreak involving intensive care. As a result, Germany did not experience hospital overcrowding as France, Italy or Spain did. As an example, Germany offered to take care of French patients when there was congestion in hospitals in eastern France. Again, this was a key factor in helping to combat the epidemic effectively.
+
+## Comparison of population at risk
+
+```{r include=FALSE}
+TotalPop <- rdb(ids = c('Eurostat/tps00001/A.JAN.FR', "Eurostat/tps00001/A.JAN.IT", "Eurostat/tps00001/A.JAN.ES", "Eurostat/tps00001/A.JAN.DE")) %>%
+  filter(!is.na(value)) # Population totale
+```
+
+```{r include=FALSE}
+TotalPop2019 <- filter(TotalPop, original_period == 2019)
+```
+
+```{r include=FALSE}
+Pop65andMore <- rdb(ids = c('Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.FR', "Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.IT", "Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.ES", "Eurostat/demo_pjanbroad/A.NR.Y_GE65.T.DE")) %>%
+  filter(!is.na(value)) # 65 ans ou plus 
+```
+
+```{r include=FALSE}
+Pop65andMore2019 <- filter(Pop65andMore, original_period == 2019)
+```
+
+```{r include=FALSE}
+Country <- c("France", "Italy", "Spain", "Germany")
+Ratio <- Pop65andMore2019$value/TotalPop2019$value*100
+TableauRatioPop <- data.frame(Country, Ratio) # Ratio 65 ans ou +
+colnames(TableauRatioPop)[2] <- "Population over 65 years old ratio"
+```
+
+```{r echo=FALSE, fig.align="center"}
+TableauRatioPop %>% 
+kable() %>%
+  kable_styling()
+```
+
+The Covid-19 virus is particularly dangerous for people at risk, i.e. people with serious health problems or the elderly. Through this analysis we see that Italy is the country with the highest proportion of people over 65 years of age in relation to the total population. Spain is the country with the lowest proportion. This necessarily influences the number of deaths recorded, as the majority of people who die from coronavirus are elderly.
+
+# **French impact of the epidemic**
+
+## Impact by industry before the lockdown in France
+
+```{r include=FALSE}
+Impactbyindustry <- read_csv("Impactbyindustry.csv")
+```
+
+```{r include=FALSE}
+Impactbyindustry1 <- ggplot(Impactbyindustry) +
+ aes(x = Industries, fill = Industries, weight = `Traffic evolution`) +
+ geom_bar() +
+ scale_fill_viridis_d(option = "plasma") +
+ labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") +
+ ggthemes::theme_fivethirtyeight()
+Impactbyindustry1
+```
+
+```{r echo=FALSE, fig.align="center"}
+Impactbyindustry1 + theme(legend.title = element_text(size = 0, 
+    face = "bold")) + theme(plot.subtitle = element_text(size = 12, 
+    face = "bold"), axis.text.x = element_text(size = 0), 
+    plot.title = element_text(size = 15), 
+    legend.text = element_text(size = 10)) +labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", 
+    subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
+```
+
+Analyse à faire
+Peut être rajouter l'impact par industrie à ce jour ?
+
+## French people's feelings (Twitter analysis)
+
+```{r eval=FALSE, include=FALSE}
+get_token()
+```
+
+```{r eval=FALSE, include=FALSE}
+covidTwitter <- search_tweets("#deconfinement", n=1000, include_rts = FALSE, retryonratelimit = TRUE) # recherche en date du 07 mai 2020
+```
+
+```{r eval=FALSE, include=FALSE}
+covidTwitter
+```
+
+```{r eval=FALSE, include=FALSE}
+users_data(covidTwitter)
+```
+
+```{r eval=FALSE, include=FALSE}
+save_as_csv(covidTwitter, file_name = "TweetCovid", prepend_ids = TRUE, na = "",
+  fileEncoding = "UTF-8")
+```
+
+```{r message=FALSE, warning=FALSE, include=FALSE}
+covidTwitter2 <- read_csv("TweetCovid.csv")
+```
+
+```{r include=FALSE}
+tweets.deconfinement = select(covidTwitter2, screen_name, text) # sélectionner uniquement les utilisateurs et les tweets
+```
+
+```{r include=FALSE}
+tweets.deconfinement$stripped_text1 <- gsub("(RT|via)((?:\\b\\W*@\\w+)+)", "", tweets.deconfinement$text) # enlever les re-tweet
+
+tweets.deconfinement$stripped_text1 <- gsub("http\\w+", "", tweets.deconfinement$stripped_text1) # enlever les liens hypertextes
+
+tweets.deconfinement$stripped_text1 <- gsub("pictwitter\\w+ *", "", tweets.deconfinement$stripped_text1) # enlever les images
+
+tweets.deconfinement$stripped_text1 <- gsub("t.co", "", tweets.deconfinement$stripped_text1)
+```
+
+```{r include=FALSE}
+tweets.deconfinement_stem <- unnest_tokens(select(tweets.deconfinement, stripped_text1), word, stripped_text1) # enlever l'id utilisateur et compter chaque mot séparément
+```
+
+```{r include=FALSE}
+cleaned_tweets.deconfinement <- anti_join(tweets.deconfinement_stem, stopwordslangs)
+```
+
+```{r include=FALSE}
+head(tweets.deconfinement$text)
+```
+
+```{r include=FALSE}
+cleaned_tweets.deconfinement %>% count(word, sort = TRUE) %>% top_n(20) %>% mutate(word = reorder(word,n)) %>% ggplot(aes(x=word, y=n)) + geom_col() + xlab(NULL) + coord_flip() + theme_classic() + labs(x= "Count", y="Unique words", title = "Unique words counts found in #deconfinement tweets")
+```
+
+```{r include=FALSE}
+bing_deconfinement = cleaned_tweets.deconfinement %>% inner_join(get_sentiments("bing")) %>% count(word, sentiment, sort = TRUE) %>% ungroup()
+```
+
+```{r echo=FALSE, fig.align="center", message=FALSE, warning=FALSE}
+bing_deconfinement %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #deconfinement (07/05/2020)", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
+```
+
+Analyse à faire (tweets en date du 07 mai 2020)
+
+# Conclusion

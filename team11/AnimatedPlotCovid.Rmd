@@ -45,7 +45,7 @@ Plot_formatted <- PlotCumsumConfirmed %>%
   ungroup()
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 StaticPlotCovid = ggplot(Plot_formatted, aes(rank, group = name, 
                 fill = as.factor(name), color = as.factor(name))) +
   geom_tile(aes(y = CumulConfirmes/2,
@@ -77,7 +77,7 @@ StaticPlotCovid = ggplot(Plot_formatted, aes(rank, group = name,
        plot.margin = margin(2,2, 2, 4, "cm"))
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 library(gganimate)
 
 anim = StaticPlotCovid + transition_states(date, transition_length = 4, state_length = 1) +
@@ -87,7 +87,7 @@ anim = StaticPlotCovid + transition_states(date, transition_length = 4, state_le
        caption  = "Nombre de cas confirmés | Data Source: Rami Krispin/coronavirus")
 ```
 
-```{r}
+```{r eval=FALSE, include=FALSE}
 animate(anim, 1000, fps = 15,  width = 1200, height = 1000, 
         renderer = gifski_renderer("gganimcovid.gif"))
 ```
