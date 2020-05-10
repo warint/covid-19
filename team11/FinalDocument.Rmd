@@ -21,7 +21,7 @@ In the context of the global health crisis related to Covid-19, the SKEMA Global
 
 Within the framework of our study, our team decided to first study the spread of the virus on a global scale as well as its financial consequences on the markets. In a second step, we focused on the spread of the virus within Europe, the policies implemented and their results to stop the spread of the virus. Finally, we decided to deepen the analysis on the impact of the virus in France, especially on the different industries but also on the feelings of the French people through a sentiment analysis using the Twitter API.
 
-Our code to generate this document is available [here](https://github.com/warint/covid-19/blob/master/team11/FinalDocument.Rmd).
+**Our code to generate this document is available [here](https://github.com/warint/covid-19/blob/master/team11/FinalDocument.Rmd).**
 
 ```{r message=FALSE, warning=FALSE, include=FALSE}
 library(dplyr) 
@@ -254,7 +254,7 @@ WorldSpreadCovid$category3 <- ifelse(
 WorldMapCovid <- filter(WorldSpreadCovid, date == max(date))
 ```
 
-# Global impact of the epidemic
+# **Global impact of the epidemic**
 
 ## World Map Covid-19
 
@@ -425,7 +425,7 @@ ggplot(SP500) +
 
 Concerning the S&P 500, the same conclusion can be drawn from this crisis, indeed, the coronavirus crisis arrived in the United States in mid-March but the financial markets started to collapse long before. This collapse is due in part to the anticipation of the markets, but more importantly to the interconnection of the various global financial markets.
 
-# European impact of the epidemic
+# **European impact of the epidemic**
 
 We decided to study the spread of the virus in Europe, focusing in particular on France, Italy, Spain and Germany. We made this choice because the first three countries were severely affected by Covid-19 (also including the United Kingdom), then Germany was chosen for this study because this country was able to limit the impact of the epidemic on its population. We will therefore try to understand how the epidemic was contained by these different countries, the means put in place and their effectiveness.
 
@@ -641,14 +641,16 @@ HospitalEmployment2017$Country <- recode(HospitalEmployment2017$Country,
 ggplot(HospitalEmployment2017) +
  aes(x = Country, y = value, fill = Country, label = value) +
  geom_col() +
-  geom_text(nudge_y = 1) +
+  geom_text(aes(label=value, colour=Country), 
+             position=position_dodge(width = 1), 
+             vjust=-0.10) +
  scale_fill_hue() +
  labs(x = "Country", y = "Ratio for 100.000 inhabitants", title = "Number of employees in hospitals per 100,000 inhabitants", caption = "Source : Eurostat (2017)") +
  ggthemes::theme_stata() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Analyse à faire
+This graph represents the number of employees in hospitals per 100,000 inhabitants, we can see that in this field, France seems to be the most advanced country. However, we have to take into account the working week in each country to get a true picture. For example, in France the working week is set at 35 hours, whereas in Germany, Italy and Spain it is 40 hours. Consequently, France needs more employees in hospitals to do the same work as in other countries. Nevertheless, in this period of crisis, the number of employees in hospitals is important because it is a human resource that can be mobilized beyond the planned working week. Thus, France is doing better on this criterion and did not experience a shortage of labour in hospitals during the Covid-19 crisis. By way of comparison, Italy, for example, received the assistance of Cuban doctors at the beginning of the epidemic because they lacked doctors to care for all patients.
 
 ```{r include=FALSE}
 HospitalBeds <- rdb(ids = c('Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.FR', "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.IT", "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.ES", "Eurostat/hlth_rs_bds/A.P_HTHAB.HBEDT_CUR.DE")) %>%
@@ -672,13 +674,15 @@ HospitalBeds2017$Country <- recode(HospitalBeds2017$Country,
 ggplot(HospitalBeds2017) +
  aes(x = Country, y = value, fill = Country, label = value) +
  geom_col() +
-  geom_text(nudge_y = 1) +
+  geom_text(aes(label=value, colour=Country), 
+             position=position_dodge(width = 1), 
+             vjust=-0.10) +
  labs(y = "Ratio for 100.000 inhabitants", x = "Country", title = "Hospital beds in intensive care per 100.000 inhabitants", caption = "Source : Eurostat (2017)") +
  ggthemes::theme_stata() +
   theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Analyse à faire
+This graph shows Germany's capacity to receive patients in intensive care units. If we compare with its European neighbors, we can see that Germany was much better equipped to deal with a violent outbreak involving intensive care. As a result, Germany did not experience hospital overcrowding as France, Italy or Spain did. As an example, Germany offered to take care of French patients when there was congestion in hospitals in eastern France. Again, this was a key factor in helping to combat the epidemic effectively.
 
 ## Comparison of population at risk
 
@@ -713,9 +717,9 @@ kable() %>%
   kable_styling()
 ```
 
-Analyse à faire
+The Covid-19 virus is particularly dangerous for people at risk, i.e. people with serious health problems or the elderly. Through this analysis we see that Italy is the country with the highest proportion of people over 65 years of age in relation to the total population. Spain is the country with the lowest proportion. This necessarily influences the number of deaths recorded, as the majority of people who die from coronavirus are elderly.
 
-# French impact of the epidemic
+# **French impact of the epidemic**
 
 ## Impact by industry before the lockdown in France
 
