@@ -69,7 +69,7 @@ library(readxl)
 library(dplyr)
 
 #LOADING WGI dataset VOICE ACCOUNTABILITY
-dataset_WGI1 <- read_excel("dataset_WGI_2018_Voice_Accountability.xlsx")
+dataset_WGI1 <- read_excel("Datasets/World Governance Indicator/dataset_WGI_2018_Voice_Accountability.xlsx")
 
 names(dataset_WGI1)
 #DELETING specific ROWS where values == #N/A
@@ -88,7 +88,7 @@ names(dataset_WGI1)[3] <- "Voice Accountability"
 
 #################################################################
 #LOADING WGI dataset CORRUPTION
-dataset_WGI2 <- read_excel("dataset_WGI_2018_Corruption.xlsx")
+dataset_WGI2 <- read_excel("Datasets/World Governance Indicator/dataset_WGI_2018_Corruption.xlsx")
 
 
 #DELETING specific ROWS where values == #N/A
@@ -104,7 +104,7 @@ names(dataset_WGI2)[3] <- "Corruption"
 
 #################################################################
 #LOADING WGI dataset RULE OF LAW
-dataset_WGI3 <- read_excel("dataset_WGI_2018_Rule_of_Law.xlsx")
+dataset_WGI3 <- read_excel("Datasets/World Governance Indicator/dataset_WGI_2018_Rule_of_Law.xlsx")
 
 
 #DELETING specific ROWS where values == #N/A
@@ -120,7 +120,7 @@ names(dataset_WGI3)[3] <- "Rule of Law"
 
 #################################################################
 #LOADING WGI dataset GOVERNMENT EFFECTIVENESS
-dataset_WGI4 <- read_excel("dataset_WGI_2018_Government_Effectiveness.xlsx")
+dataset_WGI4 <- read_excel("Datasets/World Governance Indicator/dataset_WGI_2018_Government_Effectiveness.xlsx")
 
 
 #DELETING specific ROWS where values == #N/A
@@ -213,5 +213,46 @@ Saving dataset final in a excel file
 
 #SAVING DATASET FINAL in a EXCEL FILE
 write_xlsx(x = dataset_final2, path = "dataset_final_WGI_capacity_access.xlsx", col_names = TRUE)
+
+```
+
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+#LOADIND and SAVING of DATASET FINAL
+dataset_final_correl2 <- dataset_final2
+
+dataset_final_correl2[,1:2] <- NULL
+
+
+#COMPUTATION of the CENTERING MATRIX 
+mcov <- scale(dataset_final_correl2)
+
+na.omit(mcov)
+
+#SAVING MCOV as a DATA FRAME
+covariance_matrix <- as.data.frame(mcov)
+
+
+#CORRELATION TEST with HANDLING of MISSING VALUES
+mcor <- cor(covariance_matrix, method = "pearson", use = "complete.obs")
+
+#SAVING MCOR as a DATA FRAME
+correlation_matrix <- as.data.frame(mcor)
+
+#COMPUTATION of the P-VALUE COEEFICIENT
+library(Hmisc)
+p_value <- rcorr(as.matrix(correlation_matrix))
+
+p_value_matrix <- as.data.frame(p_value$P)
+
+#DISPLAYING of SIGNIFICANT CORRELATION GRAPHIC
+library(corrplot)
+corrplot(p_value$r, type="upper", order="hclust", p.mat = p_value$P, sig.level = 0.05, insig = "blank")
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(p_value$r, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
+
+
 
 ```

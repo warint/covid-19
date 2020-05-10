@@ -18,7 +18,7 @@ Retrieving democracy index from Sherbrook University (EIU.DEMO.GLOBAL, 2017, 163
 
 #Retrieving DEMOCRACY INDEX from Sherbrook University (EIU.DEMO.GLOBAL, 2017, 163 Countries)
 
-DEMOCRACY.INDEX =c( 2.55, 7.24, 5.98, 3.56, 8.61, 3.62, 1.93, 6.96, 4.11, 9.09, 8.42, 2.65, 2.71, 5.43, 3.13, 7.78, 5.61, 5.08, 5.49, 4.87, 7.81, 6.86, 7.03, 4.75, 2.33, 3.63, 3.61, 9.15, 7.88, 1.52, 7.84, 3.1, 7.59, 6.67, 3.71, 3.25, 1.61, 1.08, 8, 7.88, 3.93, 6.63, 3.31, 9.22, 2.76, 6.66, 3.36, 2.69, 6.02, 2.37, 8.08, 7.79, 3.03, 7.98, 3.42, 9.03, 7.8, 3.61, 4.06, 5.93, 6.69, 7.29, 5.86, 3.14, 1.81, 1.98, 6.46, 4.03, 5.72, 6.64, 7.23, 6.39, 4.09, 2.45, 9.15, 9.58, 7.79, 7.98, 7.29, 7.88, 3.87, 3.06, 5.11, 5.11, 3.85, 2.37, 6.64, 7.25, 4.72, 5.23, 2.32, 7.41, 8.81, 5.57, 5.11, 6.54, 5.49, 5.64, 4.87, 8.22, 3.82, 6.41, 5.94, 6.5, 5.69, 4.02, 3.83, 6.31, 5.18, 4.66, 3.76, 4.44, 9.87, 9.26, 3.04, 5.09, 1.95, 4.26, 7.08, 6.03, 6.31, 8.89, 6.49, 6.71, 6.67, 7.84, 3.19, 6.44, 8.53, 3.17, 3.19, 6.43, 6.15, 6.41, 4.66, 6.32, 7.16, 7.5, 2.15, 6.48, 9.39, 9.03, 6.76, 1.43, 1.93, 7.73, 5.47, 1.5, 7.62, 4.63, 7.19, 3.05, 7.04, 6.32, 1.72, 4.88, 5.69, 8.12, 3.87, 3.08, 2.07, 5.68, 3.16)
+Democracy.Index =c( 2.55, 7.24, 5.98, 3.56, 8.61, 3.62, 1.93, 6.96, 4.11, 9.09, 8.42, 2.65, 2.71, 5.43, 3.13, 7.78, 5.61, 5.08, 5.49, 4.87, 7.81, 6.86, 7.03, 4.75, 2.33, 3.63, 3.61, 9.15, 7.88, 1.52, 7.84, 3.1, 7.59, 6.67, 3.71, 3.25, 1.61, 1.08, 8, 7.88, 3.93, 6.63, 3.31, 9.22, 2.76, 6.66, 3.36, 2.69, 6.02, 2.37, 8.08, 7.79, 3.03, 7.98, 3.42, 9.03, 7.8, 3.61, 4.06, 5.93, 6.69, 7.29, 5.86, 3.14, 1.81, 1.98, 6.46, 4.03, 5.72, 6.64, 7.23, 6.39, 4.09, 2.45, 9.15, 9.58, 7.79, 7.98, 7.29, 7.88, 3.87, 3.06, 5.11, 5.11, 3.85, 2.37, 6.64, 7.25, 4.72, 5.23, 2.32, 7.41, 8.81, 5.57, 5.11, 6.54, 5.49, 5.64, 4.87, 8.22, 3.82, 6.41, 5.94, 6.5, 5.69, 4.02, 3.83, 6.31, 5.18, 4.66, 3.76, 4.44, 9.87, 9.26, 3.04, 5.09, 1.95, 4.26, 7.08, 6.03, 6.31, 8.89, 6.49, 6.71, 6.67, 7.84, 3.19, 6.44, 8.53, 3.17, 3.19, 6.43, 6.15, 6.41, 4.66, 6.32, 7.16, 7.5, 2.15, 6.48, 9.39, 9.03, 6.76, 1.43, 1.93, 7.73, 5.47, 1.5, 7.62, 4.63, 7.19, 3.05, 7.04, 6.32, 1.72, 4.88, 5.69, 8.12, 3.87, 3.08, 2.07, 5.68, 3.16)
 
 #Retrieving ISO COUNTRY CODE from Sherbrook University
 
@@ -31,7 +31,7 @@ ISO = c( "AFG", "ZAF", "ALB", "DZA", "DEU", "AGO", "SAU", "ARG", "ARM", "AUS", "
 
 #Creation of a DATAFRAME called DEMOCRACY
 
-democracy = data.frame(ISO,DEMOCRACY.INDEX)
+democracy = data.frame(ISO,Democracy.Index)
 
 #Ordering DEMOCRACY DATAFRAME by alphabetical order on ISO COUNTRY CODE
 
@@ -81,7 +81,7 @@ press = data.frame(ISO,PRESS.LIBERTY.INDEX)
 press <- press[order(ISO),]
 
 #TRANSFORMING the REPRESSION PRESS INDEX into a LIBERTY PRESS INDEX
-press$Press.Liberty <- 100 - press$PRESS.LIBERTY.INDEX
+press$Press.Liberty.Index <- 100 - press$PRESS.LIBERTY.INDEX
 
 #DELETING the old REPRESSION COLUMN
 press$PRESS.LIBERTY.INDEX <- NULL
@@ -209,13 +209,13 @@ library(dplyr)
 #FILTERING DEATHS CASES in the covid19_cases sum up file
 sum_deaths_country <- covid19_cases %>% 
   group_by(ISO) %>%  
-  summarize(Deaths = sum(Deaths, na.rm=TRUE))
+  summarize(Deaths.Cases = sum(Deaths, na.rm=TRUE))
 
 
 #FILTERING CONFIRMED CASES in the covid19_cases sum up file
 sum_confirmed_country <- covid19_cases %>% 
   group_by(ISO) %>%  
-  summarize(Confirmed = sum(Cases, na.rm=TRUE))
+  summarize(Confirmed.Cases = sum(Cases, na.rm=TRUE))
 
 
 #FILTERING POPULATION in the covid19_cases sum up file
@@ -254,9 +254,9 @@ Calculation of Deaths ratio and confirmed cases among the total population, deat
 
 #MOVING COLUMNS in order to have country's name as first column
 
-dataset_final$Death.Ratio.Population <- (dataset_final$Deaths / dataset_final$Population) * 1000000
-dataset_final$Confirmed.Ratio.Population <- (dataset_final$Confirmed / dataset_final$Population) * 1000000
-dataset_final$Death.Ratio.Confirmed <- (dataset_final$Deaths / dataset_final$Confirmed) * 100
+dataset_final$Death.Ratio.Population <- (dataset_final$Deaths.Cases / dataset_final$Population) * 1000000
+dataset_final$Confirmed.Ratio.Population <- (dataset_final$Confirmed.Cases / dataset_final$Population) * 1000000
+dataset_final$Death.Ratio.Confirmed <- (dataset_final$Deaths.Cases / dataset_final$Confirmed.Cases) * 100
 ```
 
 Saving data in a dataset excel file
@@ -276,28 +276,44 @@ write_xlsx(x = dataset_final, path = "dataset_final.xlsx", col_names = TRUE)
 
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
-#CENTREE REDUITE
-
+#LOADIND and SAVING of DATASET FINAL
 dataset_final_correl <- dataset_final
 
 dataset_final_correl[,1:3] <- NULL
 
-dataset_final_correl
 
+#COMPUTATION of the CENTERING MATRIX 
 mcov <- scale(dataset_final_correl)
 
+na.omit(mcov)
+
+#SAVING MCOV as a DATA FRAME
+covariance_matrix <- as.data.frame(mcov)
 
 ```
 
-!!!! PROBLEME ICI !!!!
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
-#TEST CORRELATION
+#CORRELATION TEST with HANDLING of MISSING VALUES
+mcor <- cor(covariance_matrix, method = "pearson", use = "complete.obs")
 
+#SAVING MCOR as a DATA FRAME
+correlation_matrix <- as.data.frame(mcor)
 
-mcor <- cor(mcov)
+#COMPUTATION of the P-VALUE COEEFICIENT
+library(Hmisc)
+p_value <- rcorr(as.matrix(correlation_matrix))
 
-mcor
+p_value_matrix <- as.data.frame(p_value$P)
+
+#DISPLAYING of SIGNIFICANT CORRELATION GRAPHIC
+library(corrplot)
+corrplot(p_value$r, type="upper", order="hclust", p.mat = p_value$P, sig.level = 0.05, insig = "blank")
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(p_value$r, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
+
 
 ```
 
