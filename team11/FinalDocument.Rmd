@@ -743,11 +743,14 @@ Impactbyindustry1 + theme(legend.title = element_text(size = 0,
     face = "bold"), axis.text.x = element_text(size = 0), 
     plot.title = element_text(size = 15), 
     legend.text = element_text(size = 10)) +labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", 
-    subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
+    subtitle = "Mar 3rd - Apr 5th compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
 ```
 
-Analyse à faire
-Peut être rajouter l'impact par industrie à ce jour ?
+We chose to study the impact on French industries at the start of containment in order to understand the real impact it had on the different sectors. As we can see, it is the events and tourism sectors that have suffered the most from this containment. This makes perfect sense because, as far as events are concerned, government directives prohibit all gatherings of any kind, and then, as far as tourism is concerned, travel bans and border closures have contributed to the collapse of this industry. 
+
+One sector in particular has benefited' from this situation, namely supermarkets. Indeed, the French have rushed to the supermarkets to stock up on provisions. In addition, government directives prohibiting Amazon from running its warehouses in France (which was circumvented by Amazon by delivering from its warehouses abroad) also contributed to the rise of supermarkets.
+
+The issue now is how the negatively impacted sectors will be able to emerge from this crisis. Although the end of the containment is scheduled for 11 May, activities related to events or tourism remain on hold. Thus, the survival of many companies in this sector will depend on how long it takes before activities can be resumed normally.
 
 ## French people's feelings (Twitter analysis)
 
@@ -814,6 +817,12 @@ bing_deconfinement = cleaned_tweets.deconfinement %>% inner_join(get_sentiments(
 bing_deconfinement %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #deconfinement (07/05/2020)", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
 ```
 
-Analyse à faire (tweets en date du 07 mai 2020)
+Our last analysis was done through the package (rtweet). We decided to conduct a sentiment study based on 10000 tweets from the French population containing the #deconfinement. This hashtag means "end of lockdown". This study was conducted on May 07, 4 days before the end of the lockdown.
 
-# Conclusion
+Here is the conclusion of this study: 
+
+For negative feelings, the word contamination comes first, followed by strict, catastrophe and impatience. Thus, we can see that the French people fear contamination again (and therefore a potential relaunch of the epidemic) but are also critical of the strict laws put in place by the government to contain the epidemic. 
+
+For positive feelings, these are the words
+
+# **Conclusion**
