@@ -298,7 +298,7 @@ leaflet(WorldMapCovid) %>%
   )
 ```
 
-It is an interactive map generated through the library (leaflet). This map shows for each country, the number of Covid-19 cases, the number of deaths related to the epidemic and the number of people treated. This map is dated 10 May 2020 (it has evolved since then).
+It is an interactive map generated through the library (leaflet). This map shows for each country, the number of Covid-19 cases, the number of deaths related to the epidemic and the number of people treated. This map is dated 8 May 2020 (it has evolved since then).
 We can easily see that the two "cradles" of the epidemic are currently in Europe and the United States. These are the two regions of the world where the virus has been circulating most actively and where there have been the most coronavirus-related deaths. However, one must be cautious with this information, especially on the number of confirmed cases, because some countries (including France) do not have the material means to test their entire population, so the number of confirmed cases is underestimated.
 
 You can click on the different options at the top right of the map to choose the information you wish to display. You can also click on a country to see the detailed numbers for that country.
@@ -529,7 +529,7 @@ kable(DataCountries2) %>%
   row_spec(4, bold = T, color = "white", background = "orange") 
 ```
 
-This comparative table shows the number of Covid-19 cases as of 10 May 2020, we can see that France, Italy and Spain have very high mortality ratios (more than 10%). The average lethality of Covid-19 has been defined at around 2% by many health agencies. This very high rate can be explained by the lack of testing on the part of the 3 countries concerned, in fact, not having the possibility of testing all citizens, there are many more contaminated than those currently counted, so this automatically raises the mortality ratio for these countries. 
+This comparative table shows the number of Covid-19 cases as of 8 May 2020, we can see that France, Italy and Spain have very high mortality ratios (more than 10%). The average lethality of Covid-19 has been defined at around 2% by many health agencies. This very high rate can be explained by the lack of testing on the part of the 3 countries concerned, in fact, not having the possibility of testing all citizens, there are many more contaminated than those currently counted, so this automatically raises the mortality ratio for these countries. 
 We also note that Germany is the country that is doing best in terms of the number of deaths (less than 10,000 while its European neighbours are at more than 25,000 deaths!).
 The indicator of people cared for is not really relevant because countries do not systematically count cured people. This can be explained by the fact that some people have weak symptoms and stay at home as long as these symptoms pass, so they are not counted in the treated persons.
 
@@ -743,11 +743,14 @@ Impactbyindustry1 + theme(legend.title = element_text(size = 0,
     face = "bold"), axis.text.x = element_text(size = 0), 
     plot.title = element_text(size = 15), 
     legend.text = element_text(size = 10)) +labs(y = "Impact in %", title = "Impact of the Covid-19 crisis by industry", 
-    subtitle = "Week 3/30 to 4/5 compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
+    subtitle = "Mar 3rd - Apr 5th compared to reference Jan 6th - Feb 16th, France") + theme(axis.text.x = element_text(size = 0))
 ```
 
-Analyse à faire
-Peut être rajouter l'impact par industrie à ce jour ?
+We chose to study the impact on French industries at the start of containment in order to understand the real impact it had on the different sectors. As we can see, it is the events and tourism sectors that have suffered the most from this containment. This makes perfect sense because, as far as events are concerned, government directives prohibit all gatherings of any kind, and then, as far as tourism is concerned, travel bans and border closures have contributed to the collapse of this industry. 
+
+One sector in particular has benefited' from this situation, namely supermarkets. Indeed, the French have rushed to the supermarkets to stock up on provisions. In addition, government directives prohibiting Amazon from running its warehouses in France (which was circumvented by Amazon by delivering from its warehouses abroad) also contributed to the rise of supermarkets.
+
+The issue now is how the negatively impacted sectors will be able to emerge from this crisis. Although the end of the containment is scheduled for 11 May, activities related to events or tourism remain on hold. Thus, the survival of many companies in this sector will depend on how long it takes before activities can be resumed normally.
 
 ## French people's feelings (Twitter analysis)
 
@@ -814,6 +817,29 @@ bing_deconfinement = cleaned_tweets.deconfinement %>% inner_join(get_sentiments(
 bing_deconfinement %>%group_by(sentiment) %>% top_n(10) %>% ungroup() %>% mutate(word = reorder(word,n)) %>% ggplot(aes(word, n, fill = sentiment)) + geom_col(show.legend = FALSE) + facet_wrap(~sentiment, scales="free_y") + labs(title = "Tweets containing #deconfinement (07/05/2020)", y="Contribution to sentiment", x=NULL) + coord_flip() + theme_bw()
 ```
 
-Analyse à faire (tweets en date du 07 mai 2020)
+Our last analysis was done through the package (rtweet). We decided to conduct a sentiment study based on 10000 tweets from the French population containing the #deconfinement. This hashtag means "end of lockdown". This study was conducted on May 07, 4 days before the end of the lockdown.
 
-# Conclusion
+Here is the conclusion of this study: 
+
+For negative feelings, the word contamination comes first, followed by strict, catastrophe and impatience. Thus, we can see that the French people fear contamination again (and therefore a potential relaunch of the epidemic) but are also critical of the strict laws put in place by the government to contain the epidemic. 
+
+For positive feelings, the words caution / cautious come first, followed by favorable and sustainable. We therefore note that the French are cautious about the end of the containment to come. If we make the link with the negative feelings, we can deduce a correlation between the word contamination and the need for caution highlighted in the French tweets.
+
+# **Conclusion**
+
+At a time when countries are beginning to enter a phase of deconfinement, we must remain cautious with regard to this epidemic, which is still raging throughout the world. Indeed, until a vaccine or treatment is found and proven effective, all citizens of the world will have to adopt their lifestyles to avoid contributing to the spread of the virus.
+
+It seems legitimate for States to deconcentrate in order to avoid aggravating their economic situation, which has already been severely damaged by this unprecedented crisis. Nevertheless, a second wave of epidemics must be avoided at all costs, which would have catastrophic consequences in both human and financial terms.
+If a second wave were to occur, it seems unlikely that countries would again decide to confine their populations. Nevertheless, it is clear that certain basic freedoms will be restricted in order to contain the epidemic as effectively as possible.
+
+We have a lot to learn from this crisis. First of all, it seems important to note that the relocations implemented by developed countries can lead them to a certain dependency in the event of a major crisis and put them in delicate situations. 
+
+Secondly, since the global medical resources did not seem to be optimized to deal with such a health crisis, it is clear that medical systems around the world will organize themselves in the future to avoid a repeat of such a situation. Routine hygiene habits are also likely to change.
+
+Thirdly, our ways of working are likely to change, as workers have learned to telework in order to be able to continue their activity, so it is very likely that this way of working will continue for years to come. 
+
+Finally, our relationship to ecology will most likely emerge changed as a result of this crisis. We have been able to observe that the partial and widespread cessation of human activities has contributed to a marked improvement in the quality of the air, but also of rivers, seas and oceans.
+
+This crisis makes us aware that despite the technological/medical/social advances to which we have access, we are and remain vulnerable to a situation like this. It is a real lesson of humility for Humanity.
+
+Take care of yourself and your loved ones in this difficult time.
