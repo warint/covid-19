@@ -208,15 +208,32 @@ dataset_final2$ISO2 <- NULL
 ```
 
 
+Saving dataset World Governance Indicator plus Access and Capacity to the Health Care system in a excel file
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+#SAVING DATASET FINAL in a EXCEL FILE
+write_xlsx(x = dataset_final2, path = "Datasets/dataset_final_WGI_capacity_access.xlsx", col_names = TRUE)
+
+```
+
+Merging of the WGIndicator plus Access and Capacity dataset with the Press, Democracy and Per Capita Income from the World Bank
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+#MERGING DATASET ECO and DATASET FINAL 2
+dataset_Eco$Country <- NULL
+dataset_final2 = merge(dataset_final2, dataset_Eco, by = "ISO")
+
+```
+
 Saving dataset final in a excel file
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #SAVING DATASET FINAL in a EXCEL FILE
-write_xlsx(x = dataset_final2, path = "dataset_final_WGI_capacity_access.xlsx", col_names = TRUE)
+write_xlsx(x = dataset_final2, path = "Datasets/dataset_final_2.xlsx", col_names = TRUE)
 
 ```
 
 
+Now that we've got our final dataset regrouping for 147 147 countries : Press Liberty index, Democracy index, Per Capita Income index, Corruption index, Rule of Law index, Government Effectiveness index, Voice and Accountability index, Service Capacity and Acces index, we can run correlation test. The p-value chosen is 0.05.
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #LOADIND and SAVING of DATASET FINAL
@@ -248,11 +265,35 @@ p_value_matrix <- as.data.frame(p_value$P)
 
 #DISPLAYING of SIGNIFICANT CORRELATION GRAPHIC
 library(corrplot)
-corrplot(p_value$r, type="upper", order="hclust", p.mat = p_value$P, sig.level = 0.05, insig = "blank")
 
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 corrplot(p_value$r, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
+```
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(factoextra)
+
+distance <- get_dist(correlation_matrix)
+fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
 
 
+set.seed(20)
+clusters <- kmeans(dataset_final_correl2, 2, nstart = 25)
+clusters
+
+
+§§§§§§§§§§§§ PROBLEME ICI $$$$$$$$$$$$$
+dataset_final2$Cluster <- as.factor(clusters$cluster)
+
+fviz_cluster(clusters$cluster, data = correlation_matrix)
 
 ```
+
+Saving dataset final in a excel file
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+#SAVING DATASET FINAL in a EXCEL FILE
+write_xlsx(x = dataset_final2, path = "Datasets/dataset_final_2.xlsx", col_names = TRUE)
+
+```
+
