@@ -72,7 +72,9 @@ library(dplyr)
 dataset_WGI1 <- read_excel("Datasets/World Governance Indicator/dataset_WGI_2018_Voice_Accountability.xlsx")
 
 names(dataset_WGI1)
+
 #DELETING specific ROWS where values == #N/A
+#JAI PAS TROUVE DE FONCTION POUR FAIRE CA SUPPRIMER UN HASHTAG NA ... VOUS EN CONNAISSEZ ?
 dataset_WGI1 <- subset(dataset_WGI1, Estimate != "#N/A")
 
 dataset_WGI1
@@ -240,6 +242,7 @@ Now that we've got our final dataset regrouping for 147 147 countries : Press Li
 dataset_final_correl2 <- dataset_final2
 
 dataset_final_correl2[,1:2] <- NULL
+dataset_final_correl2[9] <- NULL
 
 
 #COMPUTATION of the CENTERING MATRIX 
@@ -267,25 +270,62 @@ p_value_matrix <- as.data.frame(p_value$P)
 library(corrplot)
 
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
-corrplot(p_value$r, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
+corrplot(p_value$r, method="color", col=col(200), type="full", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
 ```
 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+#TEST SUR LES KMEANS
+
 library(factoextra)
+library(purrr)
+library(cluster)
 
-distance <- get_dist(correlation_matrix)
-fviz_dist(distance, gradient = list(low = "#00AFBB", mid = "white", high = "#FC4E07"))
+#LOADING of the DATASET FINAL2 into DATASET KMEANS1
+dataset_kmeans1 <- dataset_final2
+
+#Making the FIRST COLUMNS as ROWNAMES
+dataset_kmeans <- dataset_kmeans1[,-1]
+rownames(dataset_kmeans) <- dataset_kmeans1[,1]
+
+#DELETING UNWANTED COLUMNS
+dataset_kmeans[1] <- NULL
+dataset_kmeans[2] <- NULL
+dataset_kmeans[3] <- NULL
+dataset_kmeans[4:7] <- NULL
 
 
-set.seed(20)
-clusters <- kmeans(dataset_final_correl2, 2, nstart = 25)
+
+#STANDARDIZATON of the DATASET KMEANS
+scale(dataset_kmeans)
+
+
+#LOOKING FOR the best number of CLUSTERS by WSS (ELBOW METHOD) and SILHOUETTE method
+set.seed(40)
+fviz_nbclust(dataset_kmeans, kmeans, method = "wss")
+
+fviz_nbclust(dataset_kmeans, kmeans, method = "silhouette")
+
+#CALCULATING the QUALITY of the CLUSTERING depending on NUMBERS of CLUSTERS
+gap_stat <- clusGap(dataset_kmeans, FUN = kmeans, nstart = 25,
+                    K.max = 10, B = 50)
+
+#PRINT the RESULT
+print(gap_stat, method = "firstmax")
+
+fviz_gap_stat(gap_stat)
+
+
+#APPLYING the KMEANS ALGORITHM
+set.seed(2450)
+clusters <- kmeans(dataset_kmeans, 3, nstart = 25)
+
 clusters
 
+fviz_cluster(clusters, data = dataset_kmeans)
 
-§§§§§§§§§§§§ PROBLEME ICI $$$$$$$$$$$$$
-dataset_final2$Cluster <- as.factor(clusters$cluster)
+#SAVING the COUNTRY'S CLUSTER NUMBER into DATASET FINAL2
+dataset_final2$Cluster <- clusters$cluster
 
-fviz_cluster(clusters$cluster, data = correlation_matrix)
 
 ```
 
