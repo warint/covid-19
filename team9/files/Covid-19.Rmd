@@ -1,10 +1,9 @@
 ---
-title: "dataset"
+title: "Covid-19"
 author: "Thibault Herpe"
-date: "28/04/2020"
+date: "19/05/2020"
 output: html_document
 ---
-
 
 Our goal is to retrieve data from different databases and analyse it to find out if correlation can be found between the political regime and the number of deaths from the SARS-CoV-2 commonly named covid-19.
 
@@ -338,7 +337,7 @@ dataset_intermediaire_covid = merge(population_country, dataset_intermediaire_co
 
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
-#MOVING COLUMNS in order to have country's name as first column
+#MOVING COLUMNS in order to have COUNTRY'S NAME as FIRST COLUMN
 dataset_intermediaire_covid <- dataset_intermediaire_covid[, c(1, 5, 6, 2, 3, 4)]
 
 ```
@@ -483,6 +482,12 @@ correlation_matrix <- as.data.frame(mcor)
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
 corrplot(mcor, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", diag=TRUE )
 
+```
+By performing this correlation test on the dataset regrouping figures about covid-19, we see that the correlation between deaths and confirmed cases related to covid-19 is strong. This is no surprise as every critical or dead patient needs to be tested as the World health Organisation recommended. Furthermore, there is a strong correlation between the number of deaths per inhabitant and the number of confirmed cases per inhabitant.  
+Others relations can be more surprising as the population and confirmed cases, or deaths cases, that are not related at all. This don't come as a matter of facts as we can picture that the more your population is big as a country, the more cases you should have.
+
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
 #COMPUTATION of the P-VALUE COEEFICIENT
 library(Hmisc)
@@ -499,8 +504,8 @@ corrplot(p_value$r, method="color", col=col(200), type="upper", order="hclust", 
 
 
 ```
-By performing this correlation test on the dataset regrouping figures about covid-19, we see that only the correlation between deaths and confirmed cases related to covid-19 is significant as the p-value test performed demonstrate. This is no surprise as every critical or dead patient needs to be tested as the World health Organisation recommended.
-Others relations can be more surprising as the population and confirmed cases, or deaths cases, that are not related at all. This don't come as a matter of facts as we can picture that the more your population is big as a country, the more cases you should have.
+After performing a correlation test with p-value to determine whether the correlations obtained are significant or not, the correlations that still exist appear different. Indeed, only the correlation between the number of confirmed cases and the number of deaths appears to be significant.
+A surprising negative correlation appears between the size of the country's population and its number of deaths relative to the population. Indeed, this correlation did not appear on the simple correlation test.
 
 
 We perfom same test on our final dataset regrouping, for 147 countries, information about their revenues and governance style such as : Press Liberty index, Democracy index, Per Capita Income index, Corruption index, Rule of Law index, Government Effectiveness index, Voice and Accountability index and Service Capacity and Acces index.  We decided to run a correlation test to find pattern that could be interesting and to complete this test by a p-value test to confirm if correlations found are significant or not. To run this final test, the p-value chosen is 0.05.
@@ -611,8 +616,6 @@ Once all the parameters of the k-mean algorithm have been determined, it should 
 set.seed(2450)
 clusters <- kmeans(dataset_kmeans_clustering, 3, nstart = 25)
 
-clusters
-
 fviz_cluster(clusters, data = dataset_kmeans_clustering)
 
 #SAVING the COUNTRY'S CLUSTER NUMBER into DATASET FINAL2
@@ -620,67 +623,7 @@ dataset_kmeans_clustering$Cluster <- clusters$cluster
 
 
 ```
-3 groups of countries sharing common characteristics according to the selected variables are obtained. As previously suspected, overlapping cluster can be observed which means that this clustering cannot be the best one. With that said, this overlapping is due to only 3 countries which does not represent a threat for the overhall clustering.  
-
-
-
-According to this clustering, the hypothesis that countries belonging to the same cluster should statistically undergo the same impact of the covid was posed.
-In order to determine whether this hypothesis is correct, a k-mean algorithm is performed on the dataset of country information about the covid. Indeed, if the countries of the same cluster suffer statistically the same losses, then the 3 clusters of countries previously determined will be identified again. 
-
-```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
-#TEST SUR LES KMEANS
-
-library(factoextra)
-library(purrr)
-library(cluster)
-
-#LOADING of the DATASET FINAL into DATASET KMEANS1
-dataset_kmeans_covid_temps <- dataset_intermediaire_covid
-
-#Making the FIRST COLUMNS as ROWNAMES
-dataset_kmeans_covid <- dataset_kmeans_covid_temps[,-1]
-rownames(dataset_kmeans_covid) <- dataset_kmeans_covid_temps[,1]
-
-
-#DELETING UNWANTED COLUMNS
-dataset_kmeans_covid <- select(dataset_kmeans_covid, 'Death.Ratio.Population', 'Confirmed.Ratio.Population', 'Death.Ratio.Confirmed')
-
-#Handling MISSING VALUES
-dataset_kmeans_covid <- na.omit(dataset_kmeans_covid)
-
-#STANDARDIZATON of the DATASET KMEANS
-scale(dataset_kmeans_covid)
-
-
-#LOOKING FOR the best number of CLUSTERS by WSS (ELBOW METHOD) and SILHOUETTE method
-set.seed(40)
-fviz_nbclust(dataset_kmeans_covid, kmeans, method = "wss")
-
-fviz_nbclust(dataset_kmeans_covid, kmeans, method = "silhouette")
-
-#CALCULATING the QUALITY of the CLUSTERING depending on NUMBERS of CLUSTERS
-gap_stat <- clusGap(dataset_kmeans_covid, FUN = kmeans, nstart = 25,
-                    K.max = 5, B = 50)
-
-#PRINT the RESULT
-print(gap_stat, method = "firstmax")
-
-fviz_gap_stat(gap_stat)
-
-
-#APPLYING the KMEANS ALGORITHM
-set.seed(2450)
-clusters <- kmeans(dataset_kmeans_covid, 3, nstart = 25)
-
-clusters
-
-fviz_cluster(clusters, data = dataset_kmeans_covid)
-
-#SAVING the COUNTRY'S CLUSTER NUMBER into DATASET FINAL2
-dataset_kmeans_covid$Cluster <- clusters$cluster
-
-
-```
+3 groups of 66, 32 and 50 countries sharing common characteristics according to the selected variables are obtained. As previously suspected, overlapping cluster can be observed which means that this clustering cannot be the best one. With that said, this overlapping is due to only 3 countries which does not represent a threat for the overhall clustering.  
 
 Saving dataset final in a excel file
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
@@ -692,3 +635,20 @@ write_xlsx(x = dataset_kmeans_clustering, path = "Datasets/dataset_kmeans_cluste
 
 
 
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+#RETRIEVING DATASET KMEANS CLUSTERING to add COUNTRY COLUMN
+dataset_cluster_1_temp <- dataset_kmeans_clustering
+dataset_cluster_1_temp$Country <- dataset_final_clustering$Country
+
+#FILTERING only COUNTRIES in the CLUSTER 1
+dataset_cluster_1 <- filter(dataset_cluster_1_temp, dataset_cluster_1_temp$Cluster == "1")
+
+#MOVING COLUMNS in order to have COUNTRY'S NAME as FIRST COLUMN
+dataset_cluster_1 <- dataset_cluster_1[, c(5, 1, 2, 3, 4)]
+
+#SELECTION of COVID NUMBERS for countries in the CLUSTER 1 ONLY
+dataset_covid_cluster_1 <- filter(dataset_final_covid, dataset_final_covid$Country %in% dataset_cluster_1$Country)
+
+```

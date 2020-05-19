@@ -12,6 +12,8 @@ library(dplyr)
 
 dataset_final2 <- read_excel("dataset_final.xlsx")
 
+#dataset_final2 <- subset(dataset_final2, ISO != "VNM")
+
 ```
 
 
