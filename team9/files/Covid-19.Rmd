@@ -456,6 +456,8 @@ write_xlsx(x = dataset_final_clustering, path = "Datasets/dataset_intermediaire_
 # Data Analysis
 
 Now that we've got our final dataset regrouping, for 196 countries, informations about the covid-19 such as : Comfired cases number, Death cases number and ratio like dead person among confirmed person, confirmed cases among total population, Death cases among total population but also the total population of the country and their ISO code and names. We decided to run a correlation test to find patterns that could be interesting and to complete this test by a p-value test. We want to confirm if correlation found are real one, in other words that those correlations are significant or not. To run this final test, the p-value chosen was 0.05.
+
+## Correlation tests and p-value analysis
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 library(corrplot)
 
@@ -555,7 +557,7 @@ corrplot(p2_value$r, method="color", col=col(200), type="full", order="hclust", 
 By doing this test, we clearly see that a lot of correlations precedently found, does not existe anymore. Every square still colored shows significant correlations. The blue ones a positive correlation, and red ones a negative one. 
 By reading the matrix, we see that some indicators best decribe others, like the Rule of Law index which is strongly, and significantly, correlated to the RNB per Inhabitant per year, the Government effectiveness, the Corruption index. Therefore, if we only take it to perfom test, it will well represents the other ones.
 
-
+## Country segmentation by k-mean algorithm 
 After calculation of this correlation matrix under the p-value test, we decided to take only some of indicators to perfom a kmeans algorithm on a dataset of 147 countries. 
 Our goal is to create groups of country based on the evaluation of their : Service Capacity and Access index, Rule of law index and Voice Accountability index. 
 Before performing the kmeans algorithm, it is needed to by determine the optimal number of clusters. in order to avoid too vague clustering, it will be important not to fragment the dataset into more than 3 groups.  By doing so, the subgroups should contain more than the 30 individuals needed to perform statistically reliable tests. Having 148 countries, the ideal groups would contain in the 45 to 50 countries. 
@@ -634,7 +636,10 @@ write_xlsx(x = dataset_kmeans_clustering, path = "Datasets/dataset_kmeans_cluste
 ```
 
 
+## Covid-19 impact statistics by cluster 
 
+Once 3 clusters of countries have been obtained, analyses will be carried out to determine the impact of covid-19 on the countries belonging to the same cluster. 
+Here, these analyses will focus on cluster 1 which includes the countries of the European Union, but also the largest countries in the world in terms of geopolitics. 
 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
@@ -647,8 +652,37 @@ dataset_cluster_1 <- filter(dataset_cluster_1_temp, dataset_cluster_1_temp$Clust
 
 #MOVING COLUMNS in order to have COUNTRY'S NAME as FIRST COLUMN
 dataset_cluster_1 <- dataset_cluster_1[, c(5, 1, 2, 3, 4)]
+dataset_cluster_1 <- as.data.frame(dataset_cluster_1)
 
 #SELECTION of COVID NUMBERS for countries in the CLUSTER 1 ONLY
 dataset_covid_cluster_1 <- filter(dataset_final_covid, dataset_final_covid$Country %in% dataset_cluster_1$Country)
 
+#dataset_covid_cluster_1$ISO <- dataset_cluster_1$
+
+#COMPUTATION of MEANS for EACH COLUMNS
+means_covid_cluster_1 <- colMeans(dataset_covid_cluster_1[4:9])
+means_covid_cluster_1 <- as.data.frame(means_covid_cluster_1)
+
+
+#DELETING ISO2 COLUMN
+dataset_covid_cluster_1$ISO2 <- NULL
+
+#RETRIEVING COVID INFORMATIONS by COUNTRY
+dataset_covid_10_countries <- subset(dataset_covid_cluster_1, dataset_covid_cluster_1$ISO %in% c("LBY","BRA","KOR","SWE","FRA","DEU","CHN","USA","GBR","PRT"))
+
 ```
+
+
+
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+
+library(ggplot2)
+library(ggthemes)
+
+ggplot(x = Portugal_covid$Death.Ratio.Population, y = Portugal_covid$Population)
+
+```
+
+
