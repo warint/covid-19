@@ -345,7 +345,6 @@ dataset_intermediaire_covid <- dataset_intermediaire_covid[, c(1, 5, 6, 2, 3, 4)
 Calculation of Deaths ratio and confirmed cases among the total population, deaths ratio among confirmed cases.
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
-#MOVING COLUMNS in order to have country's name as first column
 
 dataset_intermediaire_covid$Death.Ratio.Population <- (dataset_intermediaire_covid$Deaths.Cases / dataset_intermediaire_covid$Population) * 1000000
 dataset_intermediaire_covid$Confirmed.Ratio.Population <- (dataset_intermediaire_covid$Confirmed.Cases / dataset_intermediaire_covid$Population) * 1000000
@@ -639,10 +638,10 @@ write_xlsx(x = dataset_kmeans_clustering, path = "Datasets/dataset_kmeans_cluste
 ## Covid-19 impact statistics by cluster 
 
 Once 3 clusters of countries have been obtained, analyses will be carried out to determine the impact of covid-19 on the countries belonging to the same cluster. 
-Here, these analyses will focus on cluster 1 which includes the countries of the European Union, but also the largest countries in the world in terms of geopolitics. 
+
 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
-
+#Creation of CLUSTER 1 DATAFRAME
 #RETRIEVING DATASET KMEANS CLUSTERING to add COUNTRY COLUMN
 dataset_cluster_1_temp <- dataset_kmeans_clustering
 dataset_cluster_1_temp$Country <- dataset_final_clustering$Country
@@ -657,31 +656,138 @@ dataset_cluster_1 <- as.data.frame(dataset_cluster_1)
 #SELECTION of COVID NUMBERS for countries in the CLUSTER 1 ONLY
 dataset_covid_cluster_1 <- filter(dataset_final_covid, dataset_final_covid$Country %in% dataset_cluster_1$Country)
 
-#dataset_covid_cluster_1$ISO <- dataset_cluster_1$
-
 #COMPUTATION of MEANS for EACH COLUMNS
 means_covid_cluster_1 <- colMeans(dataset_covid_cluster_1[4:9])
 means_covid_cluster_1 <- as.data.frame(means_covid_cluster_1)
 
-
 #DELETING ISO2 COLUMN
 dataset_covid_cluster_1$ISO2 <- NULL
+
 
 #RETRIEVING COVID INFORMATIONS by COUNTRY
 dataset_covid_10_countries <- subset(dataset_covid_cluster_1, dataset_covid_cluster_1$ISO %in% c("LBY","BRA","KOR","SWE","FRA","DEU","CHN","USA","GBR","PRT"))
 
 ```
 
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+#Creation of CLUSTER 2 DATAFRAME
+#RETRIEVING DATASET KMEANS CLUSTERING to add COUNTRY COLUMN
+dataset_cluster_1_temp <- dataset_kmeans_clustering
+dataset_cluster_1_temp$Country <- dataset_final_clustering$Country
 
+#FILTERING only COUNTRIES in the CLUSTER 2
+dataset_cluster_2 <- filter(dataset_cluster_1_temp, dataset_cluster_1_temp$Cluster == "2")
+
+#MOVING COLUMNS in order to have COUNTRY'S NAME as FIRST COLUMN
+dataset_cluster_2 <- dataset_cluster_2[, c(5, 1, 2, 3, 4)]
+dataset_cluster_2 <- as.data.frame(dataset_cluster_2)
+
+#SELECTION of COVID NUMBERS for countries in the CLUSTER 2 ONLY
+dataset_covid_cluster_2 <- filter(dataset_final_covid, dataset_final_covid$Country %in% dataset_cluster_2$Country)
+
+#COMPUTATION of MEANS for EACH COLUMNS
+means_covid_cluster_2 <- colMeans(dataset_covid_cluster_2[4:9])
+means_covid_cluster_2 <- as.data.frame(means_covid_cluster_2)
+
+#DELETING ISO2 COLUMN
+dataset_covid_cluster_2$ISO2 <- NULL
+
+```
 
 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+#Creation of CLUSTER 3 DATAFRAME
+#RETRIEVING DATASET KMEANS CLUSTERING to add COUNTRY COLUMN
+dataset_cluster_1_temp <- dataset_kmeans_clustering
+dataset_cluster_1_temp$Country <- dataset_final_clustering$Country
+
+#FILTERING only COUNTRIES in the CLUSTER 3
+dataset_cluster_3 <- filter(dataset_cluster_1_temp, dataset_cluster_1_temp$Cluster == "3")
+
+#MOVING COLUMNS in order to have COUNTRY'S NAME as FIRST COLUMN
+dataset_cluster_3 <- dataset_cluster_3[, c(5, 1, 2, 3, 4)]
+dataset_cluster_3 <- as.data.frame(dataset_cluster_3)
+
+#SELECTION of COVID NUMBERS for countries in the CLUSTER 3 ONLY
+dataset_covid_cluster_3 <- filter(dataset_final_covid, dataset_final_covid$Country %in% dataset_cluster_3$Country)
+
+#COMPUTATION of MEANS for EACH COLUMNS
+means_covid_cluster_3 <- colMeans(dataset_covid_cluster_3[4:9])
+means_covid_cluster_3 <- as.data.frame(means_covid_cluster_3)
+
+#DELETING ISO2 COLUMN
+dataset_covid_cluster_3$ISO2 <- NULL
+
+```
 
 
+Calculations of the averages of each variable within the same cluster are performed and grouped in the table above. 
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+cluster.comparison <- data.frame(Cluster = c("Cluster 1","Cluster 2","Cluster 3"), Population=c(means_covid_cluster_1[1,],means_covid_cluster_2[1,],means_covid_cluster_3[1,]), Confirmed.Cases = c(means_covid_cluster_1[2,],means_covid_cluster_2[2,],means_covid_cluster_3[2,]), Deaths.Cases = c(means_covid_cluster_1[3,],means_covid_cluster_2[3,],means_covid_cluster_3[3,]), Death.Ratio.Population = c(means_covid_cluster_1[4,],means_covid_cluster_2[4,],means_covid_cluster_3[4,]), Confirmed.Ratio.Population = c(means_covid_cluster_1[5,],means_covid_cluster_2[5,],means_covid_cluster_3[5,]), Death.Ratio.Confirmed = c(means_covid_cluster_1[6,],means_covid_cluster_2[6,],means_covid_cluster_3[6,]))
+
+
+cluster.comparison <- t(cluster.comparison)
+
+cluster.comparison <- as.data.frame(cluster.comparison)
+
+cluster.comparison <- cluster.comparison[-1,]
+
+
+library(tidyverse)
+
+colnames(cluster.comparison) = c("Cluster 1", "Cluster 2", "Cluster 3")
+
+rownames(cluster.comparison) <- c("Population", "Confirmed Cases", "Deaths Cases", "Deaths per millions inhabitants", "Confirmed cases per millions inhabitants", "Death ratio per hundred confirmed cases")
+
+library(formattable)
+#formattable(cluster.comparison)
+
+formattable(cluster.comparison, align =c("l","c","c","c"), list('Cluster 1' = color_tile("#CFCFDC", "#C0C0C0"), 'Cluster 2' = color_tile("#CFCFDC", "#C0C0C0"), 'Cluster 3' = color_tile("#CFCFDC", "#C0C0C0")))
+
+```
+Some differences are noticeable, such as the number of confirmed cases, which varies greatly, or the number of deaths per million inhabitants. A factor 10 appears between each cluster concerning the number of deaths per million inhabitants, which represents a very important variation. This can have several origins, such as the lack of detection of cases due to lack of testing, a population that is relatively untouched because it is either totally confined or far from global communication channels. The cause can also be very different and take a political turn with figures deliberately modified so as not to appear catastrophic. 
+
+
+
+Further analysis will be conducted on Cluster 1, which includes the countries of the European Union, but also the largest countries in the world in terms of geopolitics, without forgetting poor countries, sometimes at war, but with a relatively efficient health system. 
+Cluster 1 is composed of Brazil, China, France, Germany, Libya, Portugal, South Korea, Sweden, the United Kingdom and the United States. 
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+# Importation de la librairie ggplot2 pour faire la map et dplyr pour manipuler les data
+library(ggplot2)
+
+
+world <- map_data("world")
+
+world <- subset(world, region != "Antarctica")
+world <- subset(world, region != "French Southern and Antarctic Lands")
+
+cluster1top10 <- subset(world, region %in% c("Libya", "Brazil", "China", "Germany", "France", "USA", "South Korea", "Portugal", "UK", "Sweden"))
+
+# Produce a World map
+ggplot(data = world, aes(x = long, y = lat, group = group)) + 
+  geom_polygon(fill = "#dae3ef", color = "#CBCBCC", size = 0.3) +
+  geom_polygon(data = cluster1top10, fill = "#5a5e6b", color = "black", size = 0.3) +
+  coord_fixed(1.5) +
+  theme_void()
+```
+
+As can be seen on this map, this cluster is relatively representative of all the main country typologies, and represents almost all continents. This is very important in order not to distort the analyses. Indeed, if the observations represented only one typology of State or emanated from only one continent, this would lead to generalize specific results to a given situation. For example, selecting only European countries does not allow us to visualize the dynamics of this pandemic on a global scale.
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(ggplot2)
 library(ggthemes)
 
-ggplot(x = Portugal_covid$Death.Ratio.Population, y = Portugal_covid$Population)
+#ggplot(dataset_covid_10_countries, x = Death.Ratio.Population, y = Population, color = Country)
+#ggplot(dataset_covid_10_countries) + aes(x = Country) + geom_bar()
+
+ggplot(dataset_covid_10_countries) +
+ aes(x = dataset_covid_10_countries$Country, y = dataset_covid_10_countries$Death.Ratio.Population, fill = dataset_covid_10_countries$Country) +
+ geom_col() + scale_y_continuous("Deaths per millions inhabitants", limits = c(0,600)) + scale_x_discrete(labels=c( "Republic of Korea" = "South Korea", "United States of America" = "United States"), limits=c("Brazil", "China", "Germany", "Libya", "Portugal", "South Korea", "France", "Sweden", "United Kingdom", "United States of America")) + scale_fill_discrete(name = "Country", labels = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "South Korea", "Sweden", "United Kingdom", "United States of America")) +
+ ggthemes::theme_wsj(base_size = (9),color = "white", base_family = "sans", title_family = "mono") +  ggtitle("Covid-19 deaths \namong the population by country") +
+ theme(legend.position = "none", axis.text.x = element_text(margin = margin(t = .3, unit = "cm"), angle = 11), axis.title=element_text(size=10), axis.title.x = element_blank(), axis.title.y = element_text(face = "bold", colour = "#5a5e6b", size = 9))
+
 
 ```
 
