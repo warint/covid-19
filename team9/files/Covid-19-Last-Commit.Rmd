@@ -850,7 +850,7 @@ France, which has almost no testing among its population, has a much worse ratio
 
 
 
-
+The last but not least graph looks at the time lag between the first confirmed case of covid-19 on the territory of each country and the beginning, or not, of the lockdown measures. 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(dplyr)
 library(magrittr)
@@ -871,6 +871,8 @@ ggplot(lockdown) +
  theme(legend.position = "none", axis.text.x = element_text(margin = margin(t = .3, unit = "cm"), angle = 11), axis.title=element_text(size=10), axis.title.x = element_blank(), axis.title.y = element_text(face = "bold", colour = "#5a5e6b", size = 9))
 
 ```
+As shown in this graph, some countries, such as Portugal, have reacted very quickly to the presence of the virus on their territories by establishing a generalized containment of the population in only 17 days. Other countries such as China and the United States took very late measures with 67 and 62 days respectively. France is in the average of this selection by confining its population within 53 days, 3 days faster than its neighbour Germany. However, it should not be forgotten that countries such as Portugal and the United Kingdom were hit much later than others, although the United Kingdom did not take advantage of this to prepare for the pandemic. 
+Finally, some specific cases are to be commented like that of the Republic of Korea and Sweden which chose not to confine their population at all, or Libya which took restrictive measures, more than confinement, 3 days before the first case of covid-19 on its territory. 
 
 
 
