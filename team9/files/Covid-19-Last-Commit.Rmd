@@ -2,17 +2,32 @@
 title: "Covid-19"
 author: "Thibault Herpe"
 date: "19/05/2020"
-output: html_document
+output:
+  html_document: default
+  pdf_document: default
 ---
 
-Our goal is to retrieve data from different databases and analyse it to find out if correlation can be found between the political regime and the number of deaths from the SARS-CoV-2 commonly named covid-19.
+The first part of this study focuses on the analysis of potential correlations between the type of political regime in a country and the impact of the SARS-CoV-2 on that country. A second part explores the similarities and differences in terms of impacts of the crisis between countries with relatively identical medical characteristics. 
+
+Notice : the figures currently reported are probably underestimated and probably manipulated by some governments. However, the figures reported by the covid-19 of each country are subject to change and to be corrected by the scientific community. 
+This study will therefore be updated in order to follow the evolution of the results. 
 
 # Collecting Data
-## Sherbrook University
-### Democracy Index
 
-First we start by retrieving democracy index from Sherbrook University (EIU.DEMO.GLOBAL, 2017, 163 Countries)
-```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=TRUE}
+Country information is collected from a variety of reliable sources.
+
+## Sherbrook University
+
+The Université de Sherbrooke is a large public French-language university in Quebec, Canada with campuses located in Sherbrooke and Longueuil, a suburb of Montreal approximately 130 km west of Sherbrooke. It is one of two universities in the Estrie region of Quebec, and the only French-language university for the region.
+
+### Democracy Index (EIU.DEMO.GLOBAL)
+
+"The Democracy Index is an index compiled by the Economist Intelligence Unit (EIU), a UK-based company. It intends to measure the state of democracy in 167 countries, of which 166 are sovereign states and 164 are UN member states."
+
+find out more information about this index by following this link:
+https://en.wikipedia.org/wiki/Democracy_Index
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo= FALSE}
 
 #Retrieving DEMOCRACY INDEX from Sherbrook University (EIU.DEMO.GLOBAL, 2017, 163 Countries)
 
@@ -49,12 +64,15 @@ write_xlsx(x = democracy, path = "Datasets/dataset_democracy_index.xlsx", col_na
 ```
 
 
-### Press Liberty Index
+### Press Freedom Index (PF.LIB.PRESS.RSF.IN)
 
 
-We continue by retrieving the press liberty index from Sherbrook University (PF.LIB.PRESS.RSF.IN, 2017, 166 Countries)
+"The Press Freedom Index is an annual ranking of countries compiled and published by Reporters Without Borders based upon the organisation's own assessment of the countries' press freedom records in the previous year. It intends to reflect the degree of freedom that journalists, news organisations, and netizens have in each country, and the efforts made by authorities to respect this freedom. Reporters Without Borders is careful to note that the index only deals with press freedom and does not measure the quality of journalism nor does it look at human rights violations in general."
 
-```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=TRUE}
+find out more information about this index by following this link:
+https://en.wikipedia.org/wiki/Press_Freedom_Index
+
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo= FALSE}
 
 #Retrieving PRESS LIBERTY INDEX from Sherbrook University (PF.LIB.PRESS.RSF.IN, 2017, 166 Countries)
 
@@ -98,9 +116,21 @@ write_xlsx(x = press, path = "Datasets/dataset_press_liberty_index.xlsx", col_na
 
 
 ## European Union Open Data Portal
+
+"The EU Open Data Portal is the point of access to public data published by the EU institutions, agencies and other bodies. Information can be used and reused for commercial or non-commercial purposes. The portal is a key instrument of the EU open data strategy."
+
+find out more information about this portal by following this link:
+https://en.wikipedia.org/wiki/EU_Open_Data_Portal
+
+
+Access to the portal:
+https://data.europa.eu/euodp/en/home
+
 ### Covid 19 Cases
 
-Then we retrieve covid-19 cases from the European Union Open Data Portal (Covid 19 cases, 28-04-2020, --- Countries)
+Data concerning covid-19 collected by the European Union for each country of the world are accessible through this link:
+https://opendata.ecdc.europa.eu/covid19/casedistribution/csv
+
 ```{r setup, include=FALSE}
 library(readr)
 
@@ -138,14 +168,26 @@ write_xlsx(x = covid19_cases, path = "Datasets/dataset_covid19_cases_index.xlsx"
 ```
 
 ## World Bank
-### Per Capita Income Index
 
-We continue by retrieving the Per Capita Income from the World Bank (NY.GNP.PCAP.CD, 2018, 229 Countries)
+"The World Bank is an international financial institution that provides loans and grants to the governments of poorer countries for the purpose of pursuing capital projects. It comprises two institutions: the International Bank for Reconstruction and Development (IBRD), and the International Development Association (IDA). The World Bank is a component of the World Bank Group.
+The World Bank's most recent stated goal is the reduction of poverty."
+
+find out more information about the World Bank by following this link:
+https://en.wikipedia.org/wiki/World_Bank
+
+### Per Capita Income Index (NY.GNP.PCAP.CD)
+
+"Per capita income (PCI) or average income measures the average income earned per person in a given area (city, region, country, etc.) in a specified year. It is calculated by dividing the area's total income by its total population."
+
+find out more information about the Per capita income index by following this link:
+https://en.wikipedia.org/wiki/Per_capita_income
+
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 library(WDI)
 library(plyr)
 
-#RETRIEVING of the RNB PER INHABITANT for ALL COUNTRIES
+#RETRIEVING of the RNB PER INHABITANT for ALL COUNTRIES (NY.GNP.PCAP.CD, 2018, 229 Countries)
 RNB_hab_year <- WDI(indicator = "NY.GNP.PCAP.CD", 
                    country = "all", 
                    start = 2018, 
@@ -169,17 +211,28 @@ RNB_hab_year[2] <- NULL
 
 ```
 
-We load voice accountability index, corruption index, rule of law index and govnerment effectiveness index from the World Governance Indicators data base of the World Bank (2018)
+
+### World Governance Indicators 
+
+"Based on a long-standing research program of the World Bank, the Worldwide Governance Indicators capture six key dimensions of governance (Voice & Accountability, Political Stability and Lack of Violence, Government Effectiveness, Regulatory Quality, Rule of Law, and Control of Corruption) between 1996 and present. They measure the quality of governance in over 200 countries, based on close to 40 data sources produced by over 30 organizations worldwide and are updated annually since 2002."
+
+find out more information about World Governance Indicators by following this link:
+https://en.wikipedia.org/wiki/Worldwide_Governance_Indicators
+
+Access to the data by following this link :
+https://info.worldbank.org/governance/wgi/
+
+
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 library(readxl)
 library(dplyr)
 
-#LOADING WGI dataset VOICE ACCOUNTABILITY
+#LOADING WGI dataset VOICE ACCOUNTABILITY 2018
 dataset_WGI1 <- read_excel("Datasets/World Governance Indicator/dataset_WGI_2018_Voice_Accountability.xlsx")
 
 
 #DELETING specific ROWS where values == #N/A
-#JAI PAS TROUVE DE FONCTION POUR FAIRE CA SUPPRIMER UN HASHTAG NA ... VOUS EN CONNAISSEZ ?
 dataset_WGI1 <- subset(dataset_WGI1, Estimate != "#N/A")
 
 
@@ -244,22 +297,81 @@ names(dataset_WGI4)[3] <- "Government Effectiveness"
 
 
 ## World Health Organisation (WHO)
+
+"The World Health Organization (WHO) is a specialized agency of the United Nations responsible for international public health.[1] The WHO Constitution, which establishes the agency's governing structure and principles, states its main objective as "the attainment by all peoples of the highest possible level of health.""
+
+find out more information about the World Health Organisation by following this link:
+https://en.wikipedia.org/wiki/World_Health_Organization
+
+
 ### Universal Health Coverage Index
 
-Finally we load the Universal Health Coverage (UHC) - Service Capacity and Acess index from the World Health Organization (2018)
+Universal Health Coverage refers to access to comprehensive health care and public health for all residents of a country or geographical or political region without regard to their economic capacity or personal situation.
+
+"UHC means that all individuals and communities receive the health services they need without suffering financial hardship. It includes the full spectrum of essential, quality health services, from health promotion to prevention, treatment, rehabilitation, and palliative care.
+
+UHC enables everyone to access the services that address the most significant causes of disease and death, and ensures that the quality of those services is good enough to improve the health of the people who receive them."
+
+Find out more information about this index by following this link:
+https://www.who.int/news-room/fact-sheets/detail/universal-health-coverage-(uhc)
+
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(readxl)
 library(dplyr)
 
-#IMPORT and SAVING of ISO COUNTRY CODE index
+#IMPORT and SAVING of UHC index (2018)
 service_capacity_access <- read_excel("Datasets/UHC-service_capacity_access.xlsx")
+
+```
+
+### Acute car hospital beds per 100 000 inhabitants (E992713.T)
+
+"Acute care beds in hospitals are hospital beds that are available for curative care :
+
+Inclusion - Beds accommodating patients where the principal clinical intent is to do one or more of the following: manage labour (obstetrics), cure non-mental illness or provide definitive treatment of injury, perform surgery, relieve symptoms of non-mental illness or injury (excluding palliative care), reduce severity of non-mental illness or injury, protect against exacerbation and/or complication of non-mental illness and/or injury which could threaten life or normal functions, perform diagnostic or therapeutic procedures
+
+Exclusion - Beds allocated for other functions of care (such as psychiatric care, rehabilitation, long-term care and palliative care) - Beds in mental health and substance abuse hospitals (HP.1.2) - Beds for rehabilitation (HC.2) - Beds for palliative care"
+
+Find out more information about this indicator by following this link:
+https://gateway.euro.who.int/en/indicators/hfa_478-5060-acute-care-hospital-beds-per-100-000/
+
+```{r, echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+acute_care_bed <- data.frame(Country = c("France","Germany","Portugal","Sweden"," Republic of Korea","United Kingdom", "United States"), Acute_bed = c("309","602","325","204", "714","211", "244"))
+acute_care_bed$Acute_bed =as.numeric(levels(acute_care_bed$Acute_bed))[acute_care_bed$Acute_bed]
+
+```
+
+## Lockdown Date
+### Lockdown Date indicator
+
+"A lockdown is a requirement for people to stay where they are, usually due to specific risks to themselves or to others if they can move freely. The term "stay-at-home" is often used for lockdowns that affect an area, rather than specific locations."
+"A stay-at-home order or a movement control order (more common in Southeast Asia) is an order from a government authority to restrict movements of a population as a mass quarantine strategy for suppressing, or mitigating, an epidemic, or pandemic, by ordering residents to stay home except for essential tasks or to work in essential businesses."
+
+Find out more information about this term by following this link:
+https://en.wikipedia.org/wiki/Lockdown
+```{r, echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(dplyr)
+library(magrittr)
+
+lockdown <- data.frame(Country = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "United Kingdom", "United States"), first_case = c("26.02.20", "17.11.19", "24.01.20", "28.01.20", "25.03.20", "02.03.20", "31.01.20", "20.01.20"), lockdown_date = c("17.03.20", "23.01.20", "17.03.20", "23.03.20", "22.03.20", "19.03.20", "23.03.20", "22.03.20"))
+
+lockdown %<>%
+  mutate(first_case = as.Date(first_case, format= "%d.%m.%Y"))
+lockdown %<>%
+  mutate(lockdown_date = as.Date(lockdown_date, format= "%d.%m.%Y"))
+
+
+lockdown$lockdown_delay <- lockdown$lockdown_date - lockdown$first_case
 
 ```
 
 
 # Data Wrangling
 
-Merging the press liberty index with the democracy index
+this part is dedicated to data manipulation. In order to keep this report readable, the programming code is hidden. Access the code on the programming version of this report.
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
 #MERGING the PRESS LIBERTY INDEX with the DEMOCRACY INDEX (different rows in ISO CODE)
@@ -268,7 +380,7 @@ dataset_intermediaire_clustering = merge(press, democracy, by="ISO")
 
 ```
 
-Creation of a translation index for ISO country code and country name
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(readxl)
 library(dplyr)
@@ -281,7 +393,7 @@ ISO_COUNTRY_REDUCED <- filter(ISO_COUNTRY_REDUCED, ISO_COUNTRY_REDUCED$ISO != "N
 
 ```
 
-Saving of the iso_country_reduced index in a dataset excel file
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 #Writing of the DATASET EXCEL FILE
 library(writexl)
@@ -291,7 +403,6 @@ write_xlsx(x = ISO_COUNTRY_REDUCED, path = "Datasets/iso_country_reduced.xlsx", 
 ```
 
 
-Filtering and summarizing of Death cases and Confirmed cases within the dataset final excel file. 
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 library(dplyr)
 
@@ -316,7 +427,7 @@ sum_confirmed_country <- covid19_cases %>%
 
 ```
 
-Merging death cases sum, confirmed cases sum and country's population in the dataset final file 
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(dplyr)
 
@@ -342,16 +453,15 @@ dataset_intermediaire_covid <- dataset_intermediaire_covid[, c(1, 5, 6, 2, 3, 4)
 
 ```
 
-Calculation of Deaths ratio and confirmed cases among the total population, deaths ratio among confirmed cases.
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
-
+#RATIO CALCULATION
 dataset_intermediaire_covid$Death.Ratio.Population <- (dataset_intermediaire_covid$Deaths.Cases / dataset_intermediaire_covid$Population) * 1000000
 dataset_intermediaire_covid$Confirmed.Ratio.Population <- (dataset_intermediaire_covid$Confirmed.Cases / dataset_intermediaire_covid$Population) * 1000000
 dataset_intermediaire_covid$Death.Ratio.Confirmed <- (dataset_intermediaire_covid$Deaths.Cases / dataset_intermediaire_covid$Confirmed.Cases) * 100
 ```
 
-Saving data in a dataset excel file
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
 dataset_final_covid <- dataset_intermediaire_covid
@@ -363,7 +473,7 @@ write_xlsx(x = dataset_final_covid, path = "Datasets/dataset_final_covid.xlsx", 
 
 ```
 
-Merging the intermediary clustering dataset with the per capita income by year
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 library(dplyr)
 
@@ -380,7 +490,7 @@ dataset_intermediaire_clustering[3:9] <- NULL
 
 ```
 
-Merging of voice accountability index, corruption index, rule of law index and govnerment effectiveness index together
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #MERGING VOICE ACCOUNTABILITY and CORRUPTION by ISO code
@@ -403,7 +513,7 @@ dataset_intermediaire_clustering = merge(dataset_intermediaire_clustering, datas
 ```
 
 
-Combining of ISO country code translation file and Universal Health Coverage (UHC) - Service Capacity and Acess index
+
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 library(dplyr)
 
@@ -424,7 +534,7 @@ write_xlsx(x = service_capacity_access_index, path = "Datasets/service_capacity_
 
 ```
 
-Merging dataset final and service capacity and access index.
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #MERGING DATASET INTERMEDIAIRE CLUSTERING and SERVICE CAPACITY ACCESS INDEX by ISO code
@@ -434,7 +544,7 @@ dataset_final_clustering$ISO2 <- NULL
 
 ```
 
-Saving dataset World Governance Indicator plus Access and Capacity to the Health Care system in a excel file
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #SAVING DATASET FINAL in a EXCEL FILE
@@ -443,7 +553,6 @@ write_xlsx(x = dataset_final_clustering, path = "Datasets/dataset_final_WGI_capa
 ```
 
 
-Saving dataset final in a excel file
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #SAVING DATASET FINAL in a EXCEL FILE
@@ -454,10 +563,14 @@ write_xlsx(x = dataset_final_clustering, path = "Datasets/dataset_intermediaire_
 
 # Data Analysis
 
-Now that we've got our final dataset regrouping, for 196 countries, informations about the covid-19 such as : Comfired cases number, Death cases number and ratio like dead person among confirmed person, confirmed cases among total population, Death cases among total population but also the total population of the country and their ISO code and names. We decided to run a correlation test to find patterns that could be interesting and to complete this test by a p-value test. We want to confirm if correlation found are real one, in other words that those correlations are significant or not. To run this final test, the p-value chosen was 0.05.
+The first stage of data collection having been completed, an analysis of the data will be carried out in this second part. 
+The dataset contains information for 196 countries on covid-19 such as : confirmed cases number, deaths cases number and ratio like dead person among confirmed person, confirmed cases among total population, Death cases among total population but also the total population of the country and their ISO code and names. A first analysis of correlation between indicators will be carried out, completed by a correlation analysis under p-value test in order to confirm, or not, the statistical validity of this correlation. The objective of the correlation analysis under p-value test is to determine whether the correlation obtained is significant, and therefore exists statistically. 
+
 
 ## Correlation tests and p-value analysis
-```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
+
+### correlation test on dataset covid-19
+```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', results='hide', echo=FALSE}
 library(corrplot)
 
 #LOADIND and SAVING of DATASET FINAL
@@ -484,9 +597,16 @@ col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA")
 corrplot(mcor, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", diag=TRUE )
 
 ```
-By performing this correlation test on the dataset regrouping figures about covid-19, we see that the correlation between deaths and confirmed cases related to covid-19 is strong. This is no surprise as every critical or dead patient needs to be tested as the World health Organisation recommended. Furthermore, there is a strong correlation between the number of deaths per inhabitant and the number of confirmed cases per inhabitant.  
-Others relations can be more surprising as the population and confirmed cases, or deaths cases, that are not related at all. This don't come as a matter of facts as we can picture that the more your population is big as a country, the more cases you should have.
+This first correlation matrix shows us correlations between variables. 
+Every intersection between a line and a columns represent the correlation between those two variables. The more the blue is intense, the more the correlation is strong. Numbers in colored squares represent the correlation. If, and only if, this number is above 0.5 then the correlation can be interpreted as strong.
 
+By performing this correlation test on the dataset of covid-19 data, three main correlations appear to be strong. These are the correlation linking confirmed cases to the number of deaths, the correlation linking the number of deaths among confirmed cases to the number of deaths in the population, and the correlation linking the number of deaths in the population to the number of confirmed cases in the population.
+
+Others relations can be more surprising as the population and confirmed cases, or deaths cases, that are not related at all. This don't come as a matter of facts as it can be pictured that the more your population is big as a country, the more cases you should have.
+
+### correlation test under p-value on dataset covid-19
+The objective of the correlation analysis under p-value test is to determine whether the correlation obtained is significant, and therefore exists statistically. 
+To run this final test, the p-value chosen was 0.05.
 
 ```{r, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', echo=FALSE}
 
@@ -509,9 +629,13 @@ After performing a correlation test with p-value to determine whether the correl
 A surprising negative correlation appears between the size of the country's population and its number of deaths relative to the population. Indeed, this correlation did not appear on the simple correlation test.
 
 
-We perfom same test on our final dataset regrouping, for 147 countries, information about their revenues and governance style such as : Press Liberty index, Democracy index, Per Capita Income index, Corruption index, Rule of Law index, Government Effectiveness index, Voice and Accountability index and Service Capacity and Acces index.  We decided to run a correlation test to find pattern that could be interesting and to complete this test by a p-value test to confirm if correlations found are significant or not. To run this final test, the p-value chosen is 0.05.
+### correlation test on dataset gathering country's political system characteristics
 
-```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+the same correlation tests are carried out on the dataset gathering, for 147 countries, the data concerning their respective wealth as well as their style of governance, such as for example : Press Liberty index, Democracy index, Per Capita Income index, Corruption index, Rule of Law index, Government Effectiveness index, Voice and Accountability index and Service Capacity and Acces index.  
+A first analysis of correlation between indicators will be carried out, completed by a correlation analysis under p-value test in order to confirm, or not, the statistical validity of this correlation.
+
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', results='hide'}
 
 #LOADIND and SAVING of DATASET FINAL
 dataset_intermediaire_clustering_correl <- select(dataset_final_clustering, 'RNB.Inhab.Year', 'Press.Liberty.Index', 'Democracy.Index','Voice Accountability', 'Corruption', 'Rule of Law', 'Government Effectiveness', 'Service Capacity and Access') 
@@ -533,13 +657,18 @@ correlation_matrix2 <- as.data.frame(mcor2)
 
 #DISPLAYING of CORRELATION GRAPHIC
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
-corrplot(mcor2, method="color", col=col(200), type="full", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", diag=TRUE )
+corrplot(mcor2, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", diag=TRUE )
 
 ```
-This first correlation matrix shows us correlations between variables. 
-Every intersection between a line and a columns represent the correlation between those two variables. The more the blue is intense, the more the correlation is strong. Numbers in colored squares represent the correlation. If, and only if, this number is above 0.5 then the correlation can be interpreted as strong. 
-Even if strong correlations can be found, this first matrix can't tell us if those correlations are statistically confirmed, in other word that those correlations still exist after performing a p-value test on it.
-We perform a p-value test to confirm or not correlations found. 
+
+For instance, the correlation between the Press.Liberty.Index and the Service Capacity and Access indicator is the lowest in this matrix, which makes it impossible to establish links between these two indicators at this stage. 
+On the other hand, the correlation between the Corruption and Rule of Law indicator is the strongest in this matrix, which means that the variation of one of the indicators is highly correlated with the other one.
+Even if strong correlations can be found, this first matrix correlation can't tell if those correlations are statistically confirmed, in other word that those correlations still exist after performing a p-value test on it.
+
+### correlation test under p-value on dataset gathering country's political system characteristics
+
+A p-value test is therefore carried out to analyse the statistical validity of these correlations.  
+To run this final test, the p-value chosen was 0.05.
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #COMPUTATION of the P-VALUE COEEFICIENT
@@ -552,19 +681,104 @@ p_value_matrix2 <- as.data.frame(p2_value$P)
 library(corrplot)
 
 col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
-corrplot(p2_value$r, method="color", col=col(200), type="full", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p2_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
+corrplot(p2_value$r, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p2_value$P, sig.level = 0.05, insig = "blank", diag=TRUE )
 ```
-By doing this test, we clearly see that a lot of correlations precedently found, does not existe anymore. Every square still colored shows significant correlations. The blue ones a positive correlation, and red ones a negative one. 
-By reading the matrix, we see that some indicators best decribe others, like the Rule of Law index which is strongly, and significantly, correlated to the RNB per Inhabitant per year, the Government effectiveness, the Corruption index. Therefore, if we only take it to perfom test, it will well represents the other ones.
+By doing this test, it clearly appears that a lot of correlations precedently found, does not existe anymore. Every square still colored shows significant correlations. The blue ones a positive correlation, and red ones a negative one. 
+By reading the matrix, it can be seen that some indicators best decribe others, like the Rule of Law index which is strongly, and significantly, correlated to the RNB per Inhabitant per year, the Government effectiveness, the Corruption index. Therefore, if it's only taken to perfom test, it will well represents effectively the evolution of other ones.
+An interesting negative correlation is the one linking the Press Liberty Index to the Service Capacity and Access indicator. It is difficult to interpret this result, but several possibilities emerge. The first and most desirable would be that countries with the least free press would have better hospital capacity and easier access to care. The second possibility could be that the official figures for available places and access to healthcare systems are not representative of reality. 
+The Voice Accountability indicator confirms the observation made earlier, without being able to provide any further details.
+
+Taking these observations into account, only three indicators are selected for further analysis. The Rule of Law, Service Capacity and Access indicator and the Press.Liberty.Index will be selected. Their selection is based on the analysis of their statistical correlations with the others. Indeed, in order to simplify the analyses as much as possible, a reduction in the number of dimensions of the indicator matrices must be made. 
+
+### correlation test on dataset regrouping covid-19 figures and country's political system
+
+For this last correlation test, a new dataset is created in order to group together the tree main indicators of the political regime of the previously selected countries, and the two main indicators of the impact of covid-19 on the populations of the affected countries. 
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', results='hide'}
+#SAVING the DATASET FINAL COVID into DATASET INTERMEDIAIRE POLITICS TEMP
+dataset_intermediaire_politics_temp <- dataset_final_covid
+
+#DELETING COUNTRY and ISO2 COLUMS in DATASET INTERMEDIAIRE POLITICS TEMP
+dataset_intermediaire_politics_temp$Country <- NULL
+dataset_intermediaire_politics_temp$ISO2 <- NULL
+
+#JOINING BOTH DATASET (FINAL CLUSTERING and INTERMEDIAIRE POLITICS TEMP) by ISO COLUMNS
+dataset_intermediaire_politics = inner_join(dataset_final_clustering, dataset_intermediaire_politics_temp, by = "ISO")
+
+#LOADIND and MERGING of the TWO FINAL DATASET
+dataset_intermediaire_politics_correl <- select(dataset_intermediaire_politics, 'ISO', 'Country', 'Voice Accountability', 'Rule of Law', 'Service Capacity and Access', 'Death.Ratio.Population', 'Confirmed.Ratio.Population') 
+
+#Making the FIRST COLUMNS as ROWNAMES
+dataset_intermediaire_politics_correl_temp <- dataset_intermediaire_politics_correl[,-1]
+rownames(dataset_intermediaire_politics_correl_temp) <- dataset_intermediaire_politics_correl[,1]
+
+
+#DELETING COUNTRY and ISO2 COLUMS into DATASET INTERMEDIAIRE POLITICS CORREL TEMP
+dataset_intermediaire_politics_correl_temp$Country <- NULL
+
+
+#SAVING the DATASET INTERMEDIAIRE POLITICS CORREL TEMP into DATASET INTERMEDIAIRE POLITICS CORREL
+dataset_intermediaire_politics_correl <- dataset_intermediaire_politics_correl_temp
+
+#COMPUTATION of the CENTERING MATRIX 
+mcov3 <- scale(dataset_intermediaire_politics_correl)
+
+na.omit(mcov3)
+
+#SAVING MCOV3 as a DATA FRAME
+covariance_matrix3 <- as.data.frame(mcov3)
+
+
+#CORRELATION TEST with HANDLING of MISSING VALUES
+mcor3 <- cor(covariance_matrix3, method = "pearson", use = "complete.obs")
+
+#SAVING MCOR3 as a DATA FRAME
+correlation_matrix3 <- as.data.frame(mcor3)
+
+#DISPLAYING of CORRELATION GRAPHIC
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(mcor3, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, insig = "blank", diag=TRUE )
+
+
+```
+As a result of the test, only two correlations appear to be strong. These correlations are not new, as they correspond to those previously obtained. 
+The main result of this test is that no correlation can be established between the indicators showing the impact of covid-19 on populations and the type of political regime in place within each country. 
+However, a p-value test should be performed to confirm, or not, this result. 
+
+
+### correlation test under p-value on dataset regrouping covid-19 figures and country's political system
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+
+#COMPUTATION of the P-VALUE COEEFICIENT
+library(Hmisc)
+p2_value3 <- rcorr(as.matrix(correlation_matrix3))
+
+p_value_matrix3 <- as.data.frame(p2_value3$P)
+
+#DISPLAYING of SIGNIFICANT CORRELATION GRAPHIC
+library(corrplot)
+
+col <- colorRampPalette(c("#BB4444", "#EE9988", "#FFFFFF", "#77AADD", "#4477AA"))
+corrplot(p2_value3$r, method="color", col=col(200), type="upper", order="hclust", number.cex = .9, addCoef.col = "black", tl.col="black", tl.srt=45, p.mat = p2_value3$P, sig.level = 0.05, insig = "blank", diag=TRUE )
+```
+
+Unsurprisingly, no significant correlations appear between the type of political regime in each country and the impact of covid-19. 
+Currently, no link between political regime and the impact of covid-19 can be established, in fact, the analysis of the correlations of the different indicators does not allow us to affirm such a hypothesis. 
+However,iIt should be kept in mind that countries with a high level of press repression are likely to correct, if not manipulate, the official figures of the impact of covid-19 on their population.
+
+As the covid-19 figures are likely to evolve, it will be interesting to follow the evolution of these correlations over time.
+
 
 ## Country segmentation by k-mean algorithm 
-After calculation of this correlation matrix under the p-value test, we decided to take only some of indicators to perfom a kmeans algorithm on a dataset of 147 countries. 
-Our goal is to create groups of country based on the evaluation of their : Service Capacity and Access index, Rule of law index and Voice Accountability index. 
+
+After performing these correlation tests, a K-means algorithm is performed in order to determine groups of countries that are relatively identical in terms of hospital facilities, and thus to evaluate to which extent the covid-19 impacts these countries in the same manner. 
+the goal is to create groups of country based on the evaluation of their : Service Capacity and Access index, Rule of law index and Voice Accountability index. 
 Before performing the kmeans algorithm, it is needed to by determine the optimal number of clusters. in order to avoid too vague clustering, it will be important not to fragment the dataset into more than 3 groups.  By doing so, the subgroups should contain more than the 30 individuals needed to perform statistically reliable tests. Having 148 countries, the ideal groups would contain in the 45 to 50 countries. 
 
 The optimal number of clusters is determined prior to the execution of the kmeans agorithm. In order to determine this optimal number, the silhouette clustering test is performed. 
 For each observation, the silhouette coefficient corresponds to the difference between the average distance with observations from the same group (cohesion) and the average distance with observations from other neighbouring groups (separation). If this difference is negative, the observation is on average closer to the neighbouring group than to its own: it is therefore misclassified. Conversely, if this difference is positive, the point is on average closer to its group than to the neighbouring group: it is therefore well ranked.
-```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center', results='hide'}
 #TEST SUR LES KMEANS
 
 library(factoextra)
@@ -627,7 +841,6 @@ dataset_kmeans_clustering$Cluster <- clusters$cluster
 ```
 3 groups of 66, 32 and 50 countries sharing common characteristics according to the selected variables are obtained. As previously suspected, overlapping cluster can be observed which means that this clustering cannot be the best one. With that said, this overlapping is due to only 3 countries which does not represent a threat for the overhall clustering.  
 
-Saving dataset final in a excel file
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #SAVING DATASET FINAL in a EXCEL FILE
@@ -639,7 +852,6 @@ write_xlsx(x = dataset_kmeans_clustering, path = "Datasets/dataset_kmeans_cluste
 ## Covid-19 impact statistics by cluster 
 
 Once 3 clusters of countries have been obtained, analyses will be carried out to determine the impact of covid-19 on the countries belonging to the same cluster. 
-
 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 #Creation of CLUSTER 1 DATAFRAME
@@ -753,6 +965,7 @@ Some differences are noticeable, such as the number of confirmed cases, which va
 
 
 ## Covid-19 impact statistics for cluster 1
+
 Further analysis will be conducted on Cluster 1, which includes the countries of the European Union, but also the largest countries in the world in terms of geopolitics, without forgetting poor countries, sometimes at war, but with a relatively efficient health system. 
 Cluster 1 is composed of Brazil, China, France, Germany, Libya, Portugal, Republic of Korea, Sweden, the United Kingdom and the United States. 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
@@ -798,14 +1011,13 @@ Thus the selection consists of :
 
 - United States of America: Located in North America, the United States is a wealthy country with a relatively good healthcare system. The United States has been slow to confine its population and some states have chosen not to confine.  The mortality figures from covid-19 classifies the United States as one of the worst countries in the world even though a massive testing campaign is being performed. However, the campaign has been relatively successful in containing the epidemic, despite the total lack of coordination by the federal government, which, like Brazil, is experiencing deep divisions between the specialists in charge of managing the health crisis and the president. 
 
-
+### Acute care bed facilities
 
 An initial analysis of the number of acute care beds available, among the countries making public their data within the selection of the ten countries, allows to perceive marked disparities in hospital equipment in spite of the relative homogeneity in terms of hospital infrastructure of this cluster. 
 
-```{r}
-
-acute_care_bed <- data.frame(Country = c("France","Germany","Portugal","Sweden"," Republic of Korea","United Kingdom", "United States"), Acute_bed = c("309","602","325","204", "714","211", "244"))
-acute_care_bed$Acute_bed =as.numeric(levels(acute_care_bed$Acute_bed))[acute_care_bed$Acute_bed]
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(ggplot2)
+library(ggthemes)
 
 ggplot(acute_care_bed) + 
  aes(x = Country, y = Acute_bed, fill = Country) + geom_col() + geom_text(aes(label=Acute_bed), vjust=3.8, color="white", size=4) + scale_y_continuous("Acute care beds", limits = c(0,750)) +
@@ -815,7 +1027,7 @@ ggplot(acute_care_bed) +
 This chart shows that the number of intensive care beds available per 100,000 population in 2017 varies significantly, from 714 in the Republic of Korea to only 204 in Sweden. Two countries, France and Portugal, appear in the average of this selection with 309 and 325 beds available per 100,000 inhabitants respectively. This variability is interesting because it depicts a very different initial situation depending on the country, and therefore a response strategy that will be impacted by it. 
 
 
-
+### Mortality rate among population
 Analysis of mortality rates among the population shows a clear distinction between two groups of countries. 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(ggplot2)
@@ -832,7 +1044,7 @@ ggplot(dataset_covid_10_countries) +
 A first group consisting of France, Sweden, the United Kingdom and the United States is easily identifiable. Indeed, the figures obtained by these countries are clearly superior to the others. Thus the United Kingdom records about 550 deaths per million inhabitants, which is more than five times the figure for Germany. As stated in the introduction to this chapter, the Republic of Korea, with the exception of Libya, posted exceptionally low figures, confirming its exemplary handling of the crisis. 
 If for Germany and the Republic of Korea the figures seem to be right, this is not the case for other countries which are in very different situations such as Brazil which is still at the beginning of the epidemic on its territory or China which, although the cradle of the epidemic, seems to have frozen its figures several months ago.
 
-
+### Mortality rate among confirmed cases
 the following analysis concerns the number of deaths per hundred confirmed cases. This number is directly impacted by the testing policy of countries. Indeed, if the country can practice only relatively few tests, this will induce high mortality rate among those who test positive. Conversely, if the country has the capacity to perform mass testing like this, it improves its rate.
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(ggplot2)
@@ -849,21 +1061,12 @@ ggplot(dataset_covid_10_countries) +
 France, which has almost no testing among its population, has a much worse ratio and has the worst selection ratio, with about 20 deaths per hundred tested. In fact, as tests are mainly carried out only on patients admitted to hospital in an already deteriorated health condition, this leads to a higher mortality rate in this ratio. Conversely, the United States, which screens its population on a massive scale, has a very favourable ratio, on a par with China or Brazil and barely higher than that of Germany. However, the United States has the fourth worst ratio in terms of deaths among the population, which shows the caution with which these ratios must be interpreted. 
 
 
+### Delay before lockdown
 
 The last but not least graph looks at the time lag between the first confirmed case of covid-19 on the territory of each country and the beginning, or not, of the lockdown measures. 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
-library(dplyr)
-library(magrittr)
-
-lockdown <- data.frame(Country = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "United Kingdom", "United States"), first_case = c("26.02.20", "17.11.19", "24.01.20", "28.01.20", "25.03.20", "02.03.20", "31.01.20", "20.01.20"), lockdown_date = c("17.03.20", "23.01.20", "17.03.20", "23.03.20", "22.03.20", "19.03.20", "23.03.20", "22.03.20"))
-
-lockdown %<>%
-  mutate(first_case = as.Date(first_case, format= "%d.%m.%Y"))
-lockdown %<>%
-  mutate(lockdown_date = as.Date(lockdown_date, format= "%d.%m.%Y"))
-
-
-lockdown$lockdown_delay <- lockdown$lockdown_date - lockdown$first_case
+library(ggplot2)
+library(ggthemes)
 
 ggplot(lockdown) + 
  aes(x = Country, y = lockdown_delay, fill = Country) + geom_col() + geom_text(aes(label=round(lockdown_delay)), vjust=-0.15, size=4)+ scale_y_continuous("delay in days", limits = c(-5,75)) +
@@ -875,6 +1078,13 @@ As shown in this graph, some countries, such as Portugal, have reacted very quic
 Finally, some specific cases are to be commented like that of the Republic of Korea and Sweden which chose not to confine their population at all, or Libya which took restrictive measures, more than confinement, 3 days before the first case of covid-19 on its territory. 
 
 
+# Conclusion 
 
+This study, conducted in collaboration with the SKEMA Business School's Data Science Research Laboratory, demonstrated that at present, no links can be established between authoritarian or democratic political regimes and the impact of covid-19 on the population of countries. 
+Furthermore, the study of differences in existing hospital infrastructure within the same cluster of countries does not predict the impact of the coronavirus on the population of the countries. 
+In conclusion, if the type of regime is not at the root of the good or bad results obtained in the fight against covid-19, and if the ability to cope with the pandemic in each country's medical system does not play a role within the cluster of countries with the best healthcare resources in the world, only government actions can explain such variability in the figures recorded in the context of this pandemic. 
+
+Once again, the figures currently reported are probably underestimated and probably manipulated by some governments. However, the figures reported by the covid-19 of each country are subject to change and to be corrected by the scientific community. 
+This study will therefore be updated in order to follow the evolution of the results. 
 
 
