@@ -510,6 +510,7 @@ A surprising negative correlation appears between the size of the country's popu
 
 
 We perfom same test on our final dataset regrouping, for 147 countries, information about their revenues and governance style such as : Press Liberty index, Democracy index, Per Capita Income index, Corruption index, Rule of Law index, Government Effectiveness index, Voice and Accountability index and Service Capacity and Acces index.  We decided to run a correlation test to find pattern that could be interesting and to complete this test by a p-value test to confirm if correlations found are significant or not. To run this final test, the p-value chosen is 0.05.
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 
 #LOADIND and SAVING of DATASET FINAL
@@ -669,6 +670,7 @@ dataset_covid_10_countries <- subset(dataset_covid_cluster_1, dataset_covid_clus
 
 ```
 
+
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 #Creation of CLUSTER 2 DATAFRAME
 #RETRIEVING DATASET KMEANS CLUSTERING to add COUNTRY COLUMN
@@ -750,9 +752,9 @@ formattable(cluster.comparison, align =c("l","c","c","c"), list('Cluster 1' = co
 Some differences are noticeable, such as the number of confirmed cases, which varies greatly, or the number of deaths per million inhabitants. A factor 10 appears between each cluster concerning the number of deaths per million inhabitants, which represents a very important variation. This can have several origins, such as the lack of detection of cases due to lack of testing, a population that is relatively untouched because it is either totally confined or far from global communication channels. The cause can also be very different and take a political turn with figures deliberately modified so as not to appear catastrophic. 
 
 
-
+## Covid-19 impact statistics for cluster 1
 Further analysis will be conducted on Cluster 1, which includes the countries of the European Union, but also the largest countries in the world in terms of geopolitics, without forgetting poor countries, sometimes at war, but with a relatively efficient health system. 
-Cluster 1 is composed of Brazil, China, France, Germany, Libya, Portugal, South Korea, Sweden, the United Kingdom and the United States. 
+Cluster 1 is composed of Brazil, China, France, Germany, Libya, Portugal, Republic of Korea, Sweden, the United Kingdom and the United States. 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 # Importation de la librairie ggplot2 pour faire la map et dplyr pour manipuler les data
 library(ggplot2)
@@ -769,26 +771,108 @@ cluster1top10 <- subset(world, region %in% c("Libya", "Brazil", "China", "German
 ggplot(data = world, aes(x = long, y = lat, group = group)) + 
   geom_polygon(fill = "#dae3ef", color = "#CBCBCC", size = 0.3) +
   geom_polygon(data = cluster1top10, fill = "#5a5e6b", color = "black", size = 0.3) +
-  coord_fixed(1.5) +
+  coord_fixed(1) +
   theme_void()
 ```
 
 As can be seen on this map, this cluster is relatively representative of all the main country typologies, and represents almost all continents. This is very important in order not to distort the analyses. Indeed, if the observations represented only one typology of State or emanated from only one continent, this would lead to generalize specific results to a given situation. For example, selecting only European countries does not allow us to visualize the dynamics of this pandemic on a global scale.
 
+Thus the selection consists of :
+- Brazil: located in South America, Brazil is a poor country whose management of the crisis is strongly debated at the international and national level with a resignation of the politicians in charge of the management of the health system. In addition, Brazil has a large number of urban slums, which compromises the effectiveness of lockdown measures. Finally, the country's health system was in serious trouble even before crisis's emergence. 
+
+- China: Located in Asia, China is a reatively rich country is the epicenter of the crisis, the local government of Wuhan tried to hide the emergence of this epidemic and therefore slowed down the establishment of lockdown measures by the central government. China has very good figures which seem to be more related to the strong control of the press by the government than to the real effectiveness of the lockdown measures taken. 
+
+- France: Located in Western Europe, France is a wealthy country often cited in the past for its very efficient healthcare system. In 2000, France was ranked first in the WHO's world ranking of health systems, but it has now fallen to 15th place due to the savings made in the health system and its inadequate management. By taking action relatively late, France has avoided the collapse of its health system, but has some of the worst figures in the world. This is partly due to the fairly accurate counting it does compared to other countries. 
+
+- Germany: Located in Europe, Germany is a rich country and seems to be going through the crisis well as well as being seens as an example by having a low mortality rate as well as a non-total and regionalized lockdown. Germany quickly conducted testing campaigns that enabled it to contain as far as possible the outbreaks of the pandemic on its territory. 
+
+- Libya: located in Africa, Libya is a country at war which had a relatively functional health system before the health crisis. However the figures for the impact of the pandemic on the country seem to be inaccurate and underestimated due to a lack of testing. For the part of the country currently controlled by the central government, however, measures were taken very early on which probably helped to limit the spread of the virus. 
+
+- Portugal: Located in Southern Europe, Portugal is a country in economic difficulty following the financial crisis of 2008. This has resulted in massive cost-savings at the expense of the healthcare system, which has suffered heavy staff cuts. However, Portugal, relatively far from the main global communication routes, took advantage of the additional time before the first patient appeared on its territory to take strong and rapid measures. This is now reflected in the excellent figures that the country is reporting. It is an illustration of the success of a good management of the health crisis and proves that the quality of the health system alone is not enough to get through a pandemic with serenity. 
+
+- The Republic of Korea: Located in Asia, the Republic of Korea is a wealthy country accustomed to the management of epidemics. In 2015, South Korea faced the MERS virus which led it to maintain very high preventive measures and response capacities in case of an epidemic or pandemic. The population is also aware of the cleanliness of public spaces and numerous are those who protect themselves on a daily basis by fear of illness.This has led the country to be the world's number one example in the management of this crisis, and has allowed the country to avoid lockdown sparing it the economic consequences it induces. 
+
+- Sweden: Located in Northern Europe, Sweden is a very wealthy country that has made the radical choice not to confine itself in any way. While it does not have more catastrophic figures than France or the United Kingdom, it does have more catastrophic figures compared to its Nordic neighbors such as Norway, Denmark, and Finland. Indeed, by being far removed from the world's main trade routes, Sweden could have avoided many of the deaths it recorded. This is directly due to the strategy it has put in place which is based on collective immunity, in total opposition to its neighbours. 
+
+- United Kingdom: Located in Western Europe, the United Kingdom is a wealthy country that took action very late and is now feeling the full effects of the savings that have been made in the healthcare system for many years. The Prime Minister of the United Kingdom initially opted for the Swedish strategy based on collective immunity, before changing strategy and opting for population lockdown. This led to confusion and a lack of preparation in a country that was spared at the beginning of the crisis. Today the United Kingdom has the 4th worst figures among developed countries and the worst of this selection.
+
+- United States of America: Located in North America, the United States is a wealthy country with a relatively good healthcare system. The United States has been slow to confine its population and some states have chosen not to confine.  The mortality figures from covid-19 classifies the United States as one of the worst countries in the world even though a massive testing campaign is being performed. However, the campaign has been relatively successful in containing the epidemic, despite the total lack of coordination by the federal government, which, like Brazil, is experiencing deep divisions between the specialists in charge of managing the health crisis and the president. 
+
+
+
+An initial analysis of the number of acute care beds available, among the countries making public their data within the selection of the ten countries, allows to perceive marked disparities in hospital equipment in spite of the relative homogeneity in terms of hospital infrastructure of this cluster. 
+
+```{r}
+
+acute_care_bed <- data.frame(Country = c("France","Germany","Portugal","Sweden"," Republic of Korea","United Kingdom", "United States"), Acute_bed = c("309","602","325","204", "714","211", "244"))
+acute_care_bed$Acute_bed =as.numeric(levels(acute_care_bed$Acute_bed))[acute_care_bed$Acute_bed]
+
+ggplot(acute_care_bed) + 
+ aes(x = Country, y = Acute_bed, fill = Country) + geom_col() + geom_text(aes(label=Acute_bed), vjust=3.8, color="white", size=4) + scale_y_continuous("Acute care beds", limits = c(0,750)) +
+ ggthemes::theme_wsj(base_size = (9),color = "white", base_family = "sans", title_family = "mono") +  ggtitle("Acute care beds in 2017 \nper 100,000 inhabitants")  +
+ theme(legend.position = "none", axis.text.x = element_text(margin = margin(t = .3, unit = "cm"), angle = 11), axis.title=element_text(size=10), axis.title.x = element_blank(), axis.title.y = element_text(face = "bold", colour = "#5a5e6b", size = 9))
+```
+This chart shows that the number of intensive care beds available per 100,000 population in 2017 varies significantly, from 714 in the Republic of Korea to only 204 in Sweden. Two countries, France and Portugal, appear in the average of this selection with 309 and 325 beds available per 100,000 inhabitants respectively. This variability is interesting because it depicts a very different initial situation depending on the country, and therefore a response strategy that will be impacted by it. 
+
+
+
+Analysis of mortality rates among the population shows a clear distinction between two groups of countries. 
 ```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
 library(ggplot2)
 library(ggthemes)
 
-#ggplot(dataset_covid_10_countries, x = Death.Ratio.Population, y = Population, color = Country)
-#ggplot(dataset_covid_10_countries) + aes(x = Country) + geom_bar()
-
 ggplot(dataset_covid_10_countries) +
  aes(x = dataset_covid_10_countries$Country, y = dataset_covid_10_countries$Death.Ratio.Population, fill = dataset_covid_10_countries$Country) +
- geom_col() + scale_y_continuous("Deaths per millions inhabitants", limits = c(0,600)) + scale_x_discrete(labels=c( "Republic of Korea" = "South Korea", "United States of America" = "United States"), limits=c("Brazil", "China", "Germany", "Libya", "Portugal", "South Korea", "France", "Sweden", "United Kingdom", "United States of America")) + scale_fill_discrete(name = "Country", labels = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "South Korea", "Sweden", "United Kingdom", "United States of America")) +
+ geom_col() + geom_text(aes(label=round(dataset_covid_10_countries$Death.Ratio.Population)), vjust=-0.4, size=4) + scale_y_continuous("Deaths per millions inhabitants", limits = c(0,600)) + scale_x_discrete(labels=c("United States of America" = "United States"), limits=c("Brazil", "China", "Germany", "Libya", "Portugal", "Republic of Korea", "France", "Sweden", "United Kingdom", "United States of America")) + scale_fill_discrete(name = "Country", labels = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "Republic of Korea", "Sweden", "United Kingdom", "United States of America")) +
  ggthemes::theme_wsj(base_size = (9),color = "white", base_family = "sans", title_family = "mono") +  ggtitle("Covid-19 deaths \namong the population by country") +
  theme(legend.position = "none", axis.text.x = element_text(margin = margin(t = .3, unit = "cm"), angle = 11), axis.title=element_text(size=10), axis.title.x = element_blank(), axis.title.y = element_text(face = "bold", colour = "#5a5e6b", size = 9))
 
 
 ```
+A first group consisting of France, Sweden, the United Kingdom and the United States is easily identifiable. Indeed, the figures obtained by these countries are clearly superior to the others. Thus the United Kingdom records about 550 deaths per million inhabitants, which is more than five times the figure for Germany. As stated in the introduction to this chapter, the Republic of Korea, with the exception of Libya, posted exceptionally low figures, confirming its exemplary handling of the crisis. 
+If for Germany and the Republic of Korea the figures seem to be right, this is not the case for other countries which are in very different situations such as Brazil which is still at the beginning of the epidemic on its territory or China which, although the cradle of the epidemic, seems to have frozen its figures several months ago.
+
+
+the following analysis concerns the number of deaths per hundred confirmed cases. This number is directly impacted by the testing policy of countries. Indeed, if the country can practice only relatively few tests, this will induce high mortality rate among those who test positive. Conversely, if the country has the capacity to perform mass testing like this, it improves its rate.
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(ggplot2)
+library(ggthemes)
+
+ggplot(dataset_covid_10_countries) +
+ aes(x = dataset_covid_10_countries$Country, y = dataset_covid_10_countries$Death.Ratio.Confirmed , fill = dataset_covid_10_countries$Country) +
+ geom_col() + geom_text(aes(label=round(dataset_covid_10_countries$Death.Ratio.Confirmed)), vjust=1.9, color="White", size=4) + scale_y_continuous("Deaths among confirmed cases", limits = c(0,20)) + scale_x_discrete(labels=c("United States of America" = "United States"), limits=c("Brazil", "China", "Germany", "Libya", "Portugal", "Republic of Korea", "France", "Sweden", "United Kingdom", "United States of America")) + scale_fill_discrete(name = "Country", labels = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "Republic of Korea", "Sweden", "United Kingdom", "United States of America")) +
+ ggthemes::theme_wsj(base_size = (9),color = "white", base_family = "sans", title_family = "mono") +  ggtitle("Covid-19 deaths \nper hundred confirmed cases by country") +
+ theme(legend.position = "none", axis.text.x = element_text(margin = margin(t = .3, unit = "cm"), angle = 11), axis.title=element_text(size=10), axis.title.x = element_blank(), axis.title.y = element_text(face = "bold", colour = "#5a5e6b", size = 9))
+
+
+```
+France, which has almost no testing among its population, has a much worse ratio and has the worst selection ratio, with about 20 deaths per hundred tested. In fact, as tests are mainly carried out only on patients admitted to hospital in an already deteriorated health condition, this leads to a higher mortality rate in this ratio. Conversely, the United States, which screens its population on a massive scale, has a very favourable ratio, on a par with China or Brazil and barely higher than that of Germany. However, the United States has the fourth worst ratio in terms of deaths among the population, which shows the caution with which these ratios must be interpreted. 
+
+
+
+
+```{r,echo=FALSE, error=FALSE, warning=FALSE, message=FALSE, fig.align='center'}
+library(dplyr)
+library(magrittr)
+
+lockdown <- data.frame(Country = c("Brazil", "China", "France", "Germany", "Libya", "Portugal", "United Kingdom", "United States"), first_case = c("26.02.20", "17.11.19", "24.01.20", "28.01.20", "25.03.20", "02.03.20", "31.01.20", "20.01.20"), lockdown_date = c("17.03.20", "23.01.20", "17.03.20", "23.03.20", "22.03.20", "19.03.20", "23.03.20", "22.03.20"))
+
+lockdown %<>%
+  mutate(first_case = as.Date(first_case, format= "%d.%m.%Y"))
+lockdown %<>%
+  mutate(lockdown_date = as.Date(lockdown_date, format= "%d.%m.%Y"))
+
+
+lockdown$lockdown_delay <- lockdown$lockdown_date - lockdown$first_case
+
+ggplot(lockdown) + 
+ aes(x = Country, y = lockdown_delay, fill = Country) + geom_col() + geom_text(aes(label=round(lockdown_delay)), vjust=-0.15, size=4)+ scale_y_continuous("delay in days", limits = c(-5,75)) +
+ ggthemes::theme_wsj(base_size = (9),color = "white", base_family = "sans", title_family = "mono") +  ggtitle("Days between first case and country's lockdown")  +
+ theme(legend.position = "none", axis.text.x = element_text(margin = margin(t = .3, unit = "cm"), angle = 11), axis.title=element_text(size=10), axis.title.x = element_blank(), axis.title.y = element_text(face = "bold", colour = "#5a5e6b", size = 9))
+
+```
+
+
+
 
 
